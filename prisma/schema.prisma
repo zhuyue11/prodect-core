@@ -1,0 +1,22 @@
+// Prodect — prodect-core schema
+// Real models (User, Workspace, WorkItem) arrive in Stories 1.1, 1.2, 1.4.
+// This file exists from 1.0.2 onward to wire up the migration system.
+//
+// Prisma 7: the datasource URL lives in `prisma.config.ts` (a runtime
+// adapter), not here. This file declares only the provider and the models.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Placeholder model that exists only so the first migration has something
+/// to apply. Subsequent Stories will drop or rename this. Do not depend on
+/// `MigrationMarker` in app code.
+model MigrationMarker {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+}

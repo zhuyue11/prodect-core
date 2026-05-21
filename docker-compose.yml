@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: prodect-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prodect
+      POSTGRES_PASSWORD: prodect
+      POSTGRES_DB: prodect
+    ports:
+      # Host 5433 (port 5432 is reserved for other local Postgres instances).
+      # Container port stays 5432 so Postgres tooling inside the container is unaffected.
+      - "5433:5432"
+    volumes:
+      - prodect-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prodect -d prodect"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 3s
+
+volumes:
+  prodect-pg-data:
