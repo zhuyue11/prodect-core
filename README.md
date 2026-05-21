@@ -19,12 +19,19 @@ network service interface is not a derivative work). See
 ## Setup
 
 ```bash
+cp .env.example .env       # creates the dev DATABASE_URL
 pnpm install
+./scripts/db-up.sh         # starts Postgres in Docker and applies migrations
 pnpm dev
 ```
 
 Then open <http://localhost:3000>. You should see a placeholder "Prodect" page
 on a dark theme — not the default `create-next-app` welcome page.
+
+> **Postgres port**: the dev DB binds host port `5433` (not `5432`) to coexist
+> with other local Postgres instances. Inside the container it's still `5432`.
+> If you don't have Docker, install Docker Desktop or
+> [OrbStack](https://orbstack.dev) first.
 
 ## Stack
 
@@ -33,7 +40,10 @@ on a dark theme — not the default `create-next-app` welcome page.
 - **Language**: TypeScript (strict mode, including `noUncheckedIndexedAccess`)
 - **Styling**: Tailwind CSS v4
 - **Package manager**: pnpm (pinned via `packageManager` in `package.json` — run `corepack enable`)
-- **Persistence**: Postgres + Prisma (added in Subtask 1.0.2)
+- **Persistence**: Postgres 16 (local Docker) + Prisma 7 (with `@prisma/adapter-pg`).
+  Connection URL lives in [`prisma.config.ts`](prisma.config.ts); real schema
+  (User, Workspace, WorkItem) arrives in Stories 1.1, 1.2, 1.4. The current
+  `MigrationMarker` placeholder exists only to prove the migration system works.
 - **Auth**: NextAuth / Better-Auth (added in Story 1.1)
 
 ## Scripts
