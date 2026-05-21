@@ -11,7 +11,7 @@ function requireDatabaseUrl(): string {
   if (!url) {
     throw new Error(
       'DATABASE_URL is not set. Copy .env.example to .env and start the ' +
-      'dev DB with `./scripts/db-up.sh`.',
+        'dev DB with `./scripts/db-up.sh`.',
     );
   }
   return url;
