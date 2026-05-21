@@ -13,7 +13,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,css,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -32,6 +44,10 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "typescript": "^5"

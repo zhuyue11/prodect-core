@@ -10,11 +10,11 @@ services:
     ports:
       # Host 5433 (port 5432 is reserved for other local Postgres instances).
       # Container port stays 5432 so Postgres tooling inside the container is unaffected.
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - prodect-pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prodect -d prodect"]
+      test: ['CMD-SHELL', 'pg_isready -U prodect -d prodect']
       interval: 2s
       timeout: 5s
       retries: 15

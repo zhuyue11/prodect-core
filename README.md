@@ -45,16 +45,21 @@ on a dark theme — not the default `create-next-app` welcome page.
   (User, Workspace, WorkItem) arrives in Stories 1.1, 1.2, 1.4. The current
   `MigrationMarker` placeholder exists only to prove the migration system works.
 - **Auth**: NextAuth / Better-Auth (added in Story 1.1)
+- **Lint / format**: ESLint 9 (flat config, Next + Prettier rules) + Prettier 3.
+  Husky pre-commit hook runs `lint-staged` to auto-fix staged files on every
+  commit — no commit can land with lint errors or inconsistent formatting.
 
 ## Scripts
 
-| Script           | What it does                                 |
-| ---------------- | -------------------------------------------- |
-| `pnpm dev`       | Start the dev server on `localhost:3000`     |
-| `pnpm build`     | Production build (must pass with 0 warnings) |
-| `pnpm start`     | Start the production server                  |
-| `pnpm lint`      | Run ESLint                                   |
-| `pnpm typecheck` | Run `tsc --noEmit`                           |
+| Script              | What it does                                 |
+| ------------------- | -------------------------------------------- |
+| `pnpm dev`          | Start the dev server on `localhost:3000`     |
+| `pnpm build`        | Production build (must pass with 0 warnings) |
+| `pnpm start`        | Start the production server                  |
+| `pnpm lint`         | Run ESLint                                   |
+| `pnpm format`       | Run Prettier and write fixes in place        |
+| `pnpm format:check` | Run Prettier in check mode (used by CI)      |
+| `pnpm typecheck`    | Run `tsc --noEmit`                           |
 
 ## Layout
 

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Prodect",
-  description: "Open-source PM substrate for Prodect — an AI-native project management tool.",
+  title: 'Prodect',
+  description: 'Open-source PM substrate for Prodect — an AI-native project management tool.',
 };
 
 export default function RootLayout({
