@@ -121,8 +121,13 @@ Vercel preview deploy.
 - **Rollback**: Vercel dashboard → Deployments → click any previous deploy
   → "Promote to Production". Or `vercel rollback` from the Vercel CLI.
 - **Env vars**: managed in the Vercel dashboard (Settings → Environment
-  Variables). `DATABASE_URL` is set by the Neon integration; never commit
-  secrets to git. `.env.example` documents what's needed locally.
+  Variables). The Neon integration sets ~10 env vars; the two we use are
+  `DATABASE_URL` (pooled, for runtime queries via PgBouncer — used by
+  `lib/db.ts`) and `DATABASE_URL_UNPOOLED` (direct connection — used by
+  `prisma migrate deploy`, since PgBouncer in transaction mode breaks
+  migrations). The other env vars (`POSTGRES_URL`, `PGHOST`, etc.) are
+  unused by Prodect and can be ignored. Never commit secrets to git.
+  `.env.example` documents what's needed locally.
 - **Build pipeline**: Vercel runs `pnpm install` (which triggers
   `postinstall: prisma generate` to refresh the Prisma client against the
   current schema), then `pnpm build` (which is `next build`). Prisma
