@@ -5,7 +5,7 @@
   "description": "Open-source PM substrate for Prodect — an AI-native project management tool. GPL-3.0.",
   "license": "GPL-3.0-only",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "packageManager": "pnpm@11.2.2",
   "scripts": {
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^22.19.19",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
