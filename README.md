@@ -105,6 +105,29 @@ backstop, not the primary gate.
 
 Unit + e2e test scaffolding (Vitest, Playwright) lands in later Subtasks.
 
+## Deploys
+
+Deployed on [Vercel](https://vercel.com) (Hobby tier for v1). Database is
+managed [Neon](https://neon.tech) Postgres via the official Vercel-Neon
+integration, which auto-provisions an isolated database branch for each
+Vercel preview deploy.
+
+- **Production**: every push to `main` triggers a production deploy at
+  `prodect-core.vercel.app` (or the project's actual Vercel domain — the
+  final domain decision is in Epic 5).
+- **Previews**: every PR triggers an isolated preview deploy. Vercel posts
+  the preview URL as a PR comment. Each preview gets its own Neon DB branch
+  so PRs can safely run destructive migrations without affecting production.
+- **Rollback**: Vercel dashboard → Deployments → click any previous deploy
+  → "Promote to Production". Or `vercel rollback` from the Vercel CLI.
+- **Env vars**: managed in the Vercel dashboard (Settings → Environment
+  Variables). `DATABASE_URL` is set by the Neon integration; never commit
+  secrets to git. `.env.example` documents what's needed locally.
+- **Build pipeline**: Vercel runs `pnpm install` (which triggers
+  `postinstall: prisma generate` to refresh the Prisma client against the
+  current schema), then `pnpm build` (which is `next build`). Prisma
+  migrations run automatically against the connected Neon branch.
+
 ## Docs
 
 - [`/docs`](./docs) — project docs. Design system reference lands here in
