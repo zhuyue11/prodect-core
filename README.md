@@ -105,6 +105,37 @@ backstop, not the primary gate.
 
 Unit + e2e test scaffolding (Vitest, Playwright) lands in later Subtasks.
 
+## Deploys
+
+Deployed on [Vercel](https://vercel.com) (Hobby tier for v1). Database is
+managed [Neon](https://neon.tech) Postgres via the official Vercel-Neon
+integration, which auto-provisions an isolated database branch for each
+Vercel preview deploy.
+
+- **Production**: every push to `main` triggers a production deploy at
+  <https://prodect-core-zhuyue11s-projects.vercel.app> (Vercel's auto-assigned
+  default; a real apex domain lands in Epic 5).
+- **Previews**: every PR triggers an isolated preview deploy. Vercel posts
+  the preview URL as a PR comment. The preview URL follows the pattern
+  `prodect-core-git-<branch>-zhuyue11s-projects.vercel.app` (per-branch
+  stable) or `prodect-core-<hash>-zhuyue11s-projects.vercel.app` (per-deploy).
+  Each preview gets its own Neon DB branch so PRs can safely run destructive
+  migrations without affecting production.
+- **Rollback**: Vercel dashboard → Deployments → click any previous deploy
+  → "Promote to Production". Or `vercel rollback` from the Vercel CLI.
+- **Env vars**: managed in the Vercel dashboard (Settings → Environment
+  Variables). The Neon integration sets ~10 env vars; the two we use are
+  `DATABASE_URL` (pooled, for runtime queries via PgBouncer — used by
+  `lib/db.ts`) and `DATABASE_URL_UNPOOLED` (direct connection — used by
+  `prisma migrate deploy`, since PgBouncer in transaction mode breaks
+  migrations). The other env vars (`POSTGRES_URL`, `PGHOST`, etc.) are
+  unused by Prodect and can be ignored. Never commit secrets to git.
+  `.env.example` documents what's needed locally.
+- **Build pipeline**: Vercel runs `pnpm install` (which triggers
+  `postinstall: prisma generate` to refresh the Prisma client against the
+  current schema), then `pnpm build` (which is `next build`). Prisma
+  migrations run automatically against the connected Neon branch.
+
 ## Docs
 
 - [`/docs`](./docs) — project docs. Design system reference lands here in
