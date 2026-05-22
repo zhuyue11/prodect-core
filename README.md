@@ -1,55 +1,65 @@
 # prodect-core
 
 Open-source PM substrate for **Prodect** — an AI-native project management tool
-for small startup teams. **Open source under GPL-3.0.**
+for small startup teams. The user describes what they want to build; Prodect
+produces a structured Epic → Story → Subtask tree; coding agents execute the
+Subtasks one at a time using prompts Prodect generates.
 
-Prodect ships as two repos under an open-core architecture: this repo
-(`prodect-core`, GPL-3.0) holds all UI and the PM substrate — Work Items,
-Stories, dependencies, boards, GitHub integration. The companion repo
-[`prodect-ai`](https://github.com/zhuyue11/prodect-ai) (proprietary, private)
-holds the planning intelligence — the agent that turns chat into a structured
-Epic → Story → Subtask tree.
+## Open source
 
-Browsers only ever talk to `prodect-core`. The closed-source AI service runs
-headless and is called server-to-server. This keeps the user experience unified
-(one app, one domain, one cookie) while preserving the GPL boundary (a clean
-network service interface is not a derivative work). See
-`vision.html` principle #19 in the planning docs for the rationale.
+`prodect-core` is **open source under the GPL-3.0 license** (see [LICENSE](LICENSE)).
+This repo is the **PM substrate**: Work Items, Stories, dependency graph,
+multi-tenant workspaces, projects, the tree-view UI, GitHub integration, the
+human-todo queue, the delivery agent. The kind of thing Jira and Linear are,
+but open and AI-native.
 
-## Setup
+The **closed-source planning intelligence** — the planner agent, prompt
+generation, async-expansion loop, shared-context retrieval — ships separately
+as the proprietary [`prodect-ai`](https://github.com/zhuyue11/prodect-ai) service.
+It runs headless and is called server-to-server by `prodect-core`. Browsers
+never talk to `prodect-ai` directly, so the user experience stays unified
+(one app, one domain, one cookie) and the GPL boundary stays clean (a network
+service interface is not a derivative work).
 
-```bash
-cp .env.example .env       # creates the dev DATABASE_URL
-pnpm install
-./scripts/db-up.sh         # starts Postgres in Docker and applies migrations
-pnpm dev
-```
-
-Then open <http://localhost:3000>. You should see a placeholder "Prodect" page
-on a dark theme — not the default `create-next-app` welcome page.
-
-> **Postgres port**: the dev DB binds host port `5433` (not `5432`) to coexist
-> with other local Postgres instances. Inside the container it's still `5432`.
-> If you don't have Docker, install Docker Desktop or
-> [OrbStack](https://orbstack.dev) first.
+See `vision.html` principle #19 and `feasibility.html` ADR-008 in the planning
+docs for the open-core architecture rationale. This split follows the same
+playbook as GitLab, Sentry, Plane, and Mattermost.
 
 ## Stack
 
-- **Runtime**: Node.js ≥20
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript (strict mode, including `noUncheckedIndexedAccess`)
-- **Styling**: Tailwind CSS v4
-- **Package manager**: pnpm (pinned via `packageManager` in `package.json` — run `corepack enable`)
-- **Persistence**: Postgres 16 (local Docker) + Prisma 7 (with `@prisma/adapter-pg`).
-  Connection URL lives in [`prisma.config.ts`](prisma.config.ts); real schema
-  (User, Workspace, WorkItem) arrives in Stories 1.1, 1.2, 1.4. The current
-  `MigrationMarker` placeholder exists only to prove the migration system works.
-- **Auth**: NextAuth / Better-Auth (added in Story 1.1)
-- **Lint / format**: ESLint 9 (flat config, Next + Prettier rules) + Prettier 3.
-  Husky pre-commit hook runs `lint-staged` to auto-fix staged files on every
-  commit — no commit can land with lint errors or inconsistent formatting.
+- **Runtime**: [Node.js](https://nodejs.org) ≥20
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router, React Server Components, Turbopack)
+- **Language**: [TypeScript](https://www.typescriptlang.org) (strict mode; `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com)
+- **Persistence**: [Postgres 16](https://www.postgresql.org) (local Docker; host port `5433` to coexist with other local Postgres instances) + [Prisma 7](https://www.prisma.io) with [`@prisma/adapter-pg`](https://www.npmjs.com/package/@prisma/adapter-pg). Connection URL lives in [`prisma.config.ts`](prisma.config.ts) (Prisma 7 split it out of `schema.prisma`).
+- **Auth**: NextAuth / Better-Auth (lands in Story 1.1 — not yet present)
+- **Testing**: [Vitest](https://vitest.dev) unit + [Playwright](https://playwright.dev) e2e (scaffolding lands in later Subtasks)
+- **Lint / format**: [ESLint 9](https://eslint.org) (flat config) + [Prettier 3](https://prettier.io). [Husky](https://typicode.github.io/husky) pre-commit hook runs [lint-staged](https://github.com/lint-staged/lint-staged) to auto-fix staged files on every commit.
+- **Package manager**: [pnpm](https://pnpm.io) (version pinned via `packageManager` in `package.json`; use `corepack enable`)
+- **Deploy**: [Vercel](https://vercel.com) (lands in Subtask 1.0.5)
+- **CI**: [GitHub Actions](https://docs.github.com/actions) — three parallel jobs (lint, typecheck, build) on every PR; build uses a Postgres service container
 
-## Scripts
+This Stack section is the **authoritative reference** for every later coding-agent
+prompt. Prodect's planner (Epic 4) reads it verbatim into Subtask prompts so
+generated code matches the project's actual stack.
+
+## Local setup
+
+Prerequisites: [Node 20+](https://nodejs.org), [Docker](https://www.docker.com) or
+[OrbStack](https://orbstack.dev), [pnpm](https://pnpm.io) (`corepack enable`
+will handle this).
+
+```bash
+cp .env.example .env       # creates the dev DATABASE_URL
+pnpm install               # installs deps + sets up husky pre-commit hook
+./scripts/db-up.sh         # starts Postgres in Docker and applies migrations
+pnpm dev                   # http://localhost:3000
+```
+
+You should see a placeholder "Prodect" page on a dark theme — not the default
+`create-next-app` welcome page.
+
+### Scripts
 
 | Script              | What it does                                 |
 | ------------------- | -------------------------------------------- |
@@ -61,20 +71,53 @@ on a dark theme — not the default `create-next-app` welcome page.
 | `pnpm format:check` | Run Prettier in check mode (used by CI)      |
 | `pnpm typecheck`    | Run `tsc --noEmit`                           |
 
-## Layout
+## Project layout
 
 ```
 app/          Next.js App Router routes
 components/   React UI primitives (filled in Story 1.0.5)
-lib/          Server-side logic (DB, auth, agents)
-tests/        Vitest unit + Playwright e2e
-docs/         Project docs (design system lands here in Story 1.0.5)
+lib/          Server-side logic (DB, auth, agents). `lib/db.ts` exports the
+              singleton PrismaClient with the dev-mode hot-reload guard.
+prisma/       Prisma schema + migrations. Real models (User, Workspace,
+              WorkItem) land in Stories 1.1 / 1.2 / 1.4. Current placeholder
+              `MigrationMarker` exists only to prove the migration system works.
+tests/        Vitest unit + Playwright e2e (scaffolding lands in later Subtasks)
+docs/         Project docs. Design system lands here in Story 1.0.5.
+scripts/      Dev-loop scripts. `db-up.sh` brings up Postgres + runs migrations.
 public/       Static assets
+.github/
+  workflows/  CI definitions (see Testing below)
 ```
+
+## Testing
+
+CI runs on every PR and push to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+Three parallel jobs:
+
+- **Lint** — `pnpm lint` + `pnpm format:check`
+- **TypeScript** — `pnpm prisma generate` then `pnpm typecheck`
+- **Build** — `pnpm prisma migrate deploy` then `pnpm build`, against a
+  Postgres 16 service container
+
+The full suite targets <3 min on a fresh clone. The pre-commit hook (Husky +
+lint-staged) catches lint/format issues before they reach CI; CI is the
+backstop, not the primary gate.
+
+Unit + e2e test scaffolding (Vitest, Playwright) lands in later Subtasks.
+
+## Docs
+
+- [`/docs`](./docs) — project docs. Design system reference lands here in
+  Story 1.0.5 (`docs/design-system.md`).
+- **Planning corpus** (sibling to this repo, not inside it): `vision.html` for
+  the 19 design principles, `feasibility.html` for ADRs (incl. ADR-008 on
+  open-core), `discovery.html` / `validation.html` / `workflow.html` for
+  product context, `prodect_plan.html` + `prodect_plan/` for the Epic-Story-
+  Subtask build plan, `notes.html` for the running mistakes-log + lessons.
 
 ## License
 
-GPL-3.0-only. See [LICENSE](LICENSE) for the full text. The planning
-intelligence ships separately under a proprietary license in
-[`zhuyue11/prodect-ai`](https://github.com/zhuyue11/prodect-ai) — see
-`feasibility.html` ADR-008 in the planning docs for why this open-core split.
+[GPL-3.0-only](LICENSE). The planning intelligence ships separately under a
+proprietary license in [`zhuyue11/prodect-ai`](https://github.com/zhuyue11/prodect-ai).
+See `feasibility.html` ADR-008 in the planning docs for the open-core split
+rationale.
