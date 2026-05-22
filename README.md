@@ -113,11 +113,14 @@ integration, which auto-provisions an isolated database branch for each
 Vercel preview deploy.
 
 - **Production**: every push to `main` triggers a production deploy at
-  `prodect-core.vercel.app` (or the project's actual Vercel domain — the
-  final domain decision is in Epic 5).
+  <https://prodect-core-zhuyue11s-projects.vercel.app> (Vercel's auto-assigned
+  default; a real apex domain lands in Epic 5).
 - **Previews**: every PR triggers an isolated preview deploy. Vercel posts
-  the preview URL as a PR comment. Each preview gets its own Neon DB branch
-  so PRs can safely run destructive migrations without affecting production.
+  the preview URL as a PR comment. The preview URL follows the pattern
+  `prodect-core-git-<branch>-zhuyue11s-projects.vercel.app` (per-branch
+  stable) or `prodect-core-<hash>-zhuyue11s-projects.vercel.app` (per-deploy).
+  Each preview gets its own Neon DB branch so PRs can safely run destructive
+  migrations without affecting production.
 - **Rollback**: Vercel dashboard → Deployments → click any previous deploy
   → "Promote to Production". Or `vercel rollback` from the Vercel CLI.
 - **Env vars**: managed in the Vercel dashboard (Settings → Environment
