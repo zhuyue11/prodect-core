@@ -113,8 +113,8 @@ integration, which auto-provisions an isolated database branch for each
 Vercel preview deploy.
 
 - **Production**: every push to `main` triggers a production deploy at
-  <https://prodect-core-zhuyue11s-projects.vercel.app> (Vercel's auto-assigned
-  default; a real apex domain lands in Epic 5).
+  <https://prodect-core.vercel.app> (Vercel's auto-assigned default; a real
+  apex domain lands in Epic 5).
 - **Previews**: every PR triggers an isolated preview deploy. Vercel posts
   the preview URL as a PR comment. The preview URL follows the pattern
   `prodect-core-git-<branch>-zhuyue11s-projects.vercel.app` (per-branch
