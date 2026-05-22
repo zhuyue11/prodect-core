@@ -27,7 +27,7 @@ playbook as GitLab, Sentry, Plane, and Mattermost.
 
 ## Stack
 
-- **Runtime**: [Node.js](https://nodejs.org) ≥20
+- **Runtime**: [Node.js](https://nodejs.org) ≥22 (pnpm 11 requires it)
 - **Framework**: [Next.js 16](https://nextjs.org) (App Router, React Server Components, Turbopack)
 - **Language**: [TypeScript](https://www.typescriptlang.org) (strict mode; `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com)
@@ -45,7 +45,7 @@ generated code matches the project's actual stack.
 
 ## Local setup
 
-Prerequisites: [Node 20+](https://nodejs.org), [Docker](https://www.docker.com) or
+Prerequisites: [Node 22+](https://nodejs.org), [Docker](https://www.docker.com) or
 [OrbStack](https://orbstack.dev), [pnpm](https://pnpm.io) (`corepack enable`
 will handle this).
 
