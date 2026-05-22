@@ -15,7 +15,7 @@ but open and AI-native.
 
 The **closed-source planning intelligence** — the planner agent, prompt
 generation, async-expansion loop, shared-context retrieval — ships separately
-as the proprietary [`prodect-ai`](https://github.com/zhuyue11/prodect-ai) service.
+as the proprietary [`prodect-ai`](https://github.com/moooon-B-V/prodect-ai) service.
 It runs headless and is called server-to-server by `prodect-core`. Browsers
 never talk to `prodect-ai` directly, so the user experience stays unified
 (one app, one domain, one cookie) and the GPL boundary stays clean (a network
@@ -149,6 +149,6 @@ Vercel preview deploy.
 ## License
 
 [GPL-3.0-only](LICENSE). The planning intelligence ships separately under a
-proprietary license in [`zhuyue11/prodect-ai`](https://github.com/zhuyue11/prodect-ai).
+proprietary license in [`moooon-B-V/prodect-ai`](https://github.com/moooon-B-V/prodect-ai).
 See `feasibility.html` ADR-008 in the planning docs for the open-core split
 rationale.
