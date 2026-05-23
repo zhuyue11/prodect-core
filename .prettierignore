@@ -12,3 +12,7 @@ prisma/migrations/
 
 # The GPL LICENSE is the canonical gnu.org text — DO NOT reformat.
 LICENSE
+
+# External design-system references (fetched via `npx getdesign add ...`).
+# Keep them verbatim so they can be diffed against fresh fetches.
+docs/inspiration/
