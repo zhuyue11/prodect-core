@@ -138,8 +138,15 @@ Vercel preview deploy.
 
 ## Docs
 
-- [`/docs`](./docs) — project docs. Design system reference lands here in
-  Story 1.0.5 (`docs/design-system.md`).
+- [`docs/design-system.md`](./docs/design-system.md) — canonical reference
+  for using the design system: tokens, primitives, patterns, voice & tone,
+  don'ts. Read this when building any UI.
+- [`docs/DESIGN.md`](./docs/DESIGN.md) — architectural spec of the design
+  system: token taxonomy, palette/typography/spacing rules, component
+  implementation notes.
+- [`/tokens`](./app/tokens/page.tsx) — live specimen route. Visit
+  `localhost:3000/tokens` to see every token + primitive rendered with
+  interactive theme + display-style toggles.
 - **Planning corpus** (sibling to this repo, not inside it): `vision.html` for
   the 19 design principles, `feasibility.html` for ADRs (incl. ADR-008 on
   open-core), `discovery.html` / `validation.html` / `workflow.html` for
