@@ -63,6 +63,14 @@ jobs:
     env:
       # In CI we use the standard 5432 (no doooo-postgres collision here).
       DATABASE_URL: postgresql://prodect:prodect@localhost:5432/prodect
+      # Better-Auth reads BETTER_AUTH_SECRET at module-evaluation time, and
+      # `next build` imports the auth module while collecting page data —
+      # so the var must be present even though no real auth happens during
+      # build. This is a throwaway value used ONLY for the CI build; the
+      # real per-environment secret lives in the Vercel dashboard and is
+      # rotated independently. Safe to commit because it grants no access
+      # to anything — it just lets the module load.
+      BETTER_AUTH_SECRET: ci-build-only-not-a-real-secret-do-not-reuse
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
