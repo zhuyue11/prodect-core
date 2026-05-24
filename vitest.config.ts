@@ -9,6 +9,16 @@ import { config as loadEnv } from 'dotenv';
 // suite fails before any test runs.
 loadEnv();
 
+// Test-only defaults for the env vars `lib/auth/index.ts` reads at module
+// load. We do NOT overwrite anything a developer set in .env (override:false
+// is dotenv's default). These placeholders only kick in when a CI/dev shell
+// has nothing set — they let the auth module import without throwing, which
+// is required for any test that touches Better-Auth's surface. They never
+// reach a real OAuth server.
+process.env['GOOGLE_CLIENT_ID'] ??= 'test-google-client-id';
+process.env['GOOGLE_CLIENT_SECRET'] ??= 'test-google-client-secret';
+process.env['BETTER_AUTH_SECRET'] ??= 'test-better-auth-secret-32-bytes-long-please';
+
 // Vitest is configured for Node integration tests against a real Postgres.
 // Browser-style component tests (jsdom/happy-dom) aren't needed yet; if
 // they arrive in Story 1.1.5 (sign-in pages) or later, split this into

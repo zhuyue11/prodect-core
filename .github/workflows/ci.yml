@@ -71,6 +71,13 @@ jobs:
       # rotated independently. Safe to commit because it grants no access
       # to anything — it just lets the module load.
       BETTER_AUTH_SECRET: ci-build-only-not-a-real-secret-do-not-reuse
+      # Subtask 1.1.4: Google OAuth provider requires both env vars at
+      # module load (requiredEnv check). CI uses placeholders — they let
+      # Better-Auth register the provider so `next build` succeeds; the
+      # real per-environment values live in the Vercel dashboard. The
+      # build never actually hits Google with these.
+      GOOGLE_CLIENT_ID: ci-build-only-placeholder
+      GOOGLE_CLIENT_SECRET: ci-build-only-placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
