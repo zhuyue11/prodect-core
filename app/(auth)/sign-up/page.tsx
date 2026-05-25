@@ -131,7 +131,7 @@ function SignUpForm() {
 
       {step === 'identity' ? (
         <form onSubmit={onContinueIdentity} className="flex flex-col gap-5" noValidate>
-          <GoogleButton callbackURL={callbackURL} label="sign-up" onError={setPageError} />
+          <GoogleButton callbackURL={callbackURL} onError={setPageError} />
           <OrDivider />
           <Input
             type="text"

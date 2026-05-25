@@ -113,7 +113,7 @@ function SignInForm() {
       {step === 'email' ? (
         <form onSubmit={onContinueEmail} className="flex flex-col gap-5" noValidate>
           {/* Google button first per the AC: tab order = Google → email → continue. */}
-          <GoogleButton callbackURL={callbackURL} label="sign-in" onError={setPageError} />
+          <GoogleButton callbackURL={callbackURL} onError={setPageError} />
           <OrDivider />
           <Input
             type="email"
