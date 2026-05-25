@@ -47,7 +47,19 @@ export const auth = betterAuth({
   database: prismaAdapter(db, { provider: 'postgresql' }),
 
   secret: requiredEnv('BETTER_AUTH_SECRET'),
-  baseURL: process.env['BETTER_AUTH_URL'] ?? 'http://localhost:3000',
+  // Resolution order:
+  //   1. BETTER_AUTH_URL — explicit override; set on production (and any
+  //      environment where the canonical public URL is stable and known).
+  //   2. VERCEL_URL — auto-injected by Vercel into every deployment with
+  //      that deployment's own hostname. Critical for preview deployments
+  //      where each PR gets a unique URL; without this fallback,
+  //      `baseURL` would default to localhost and Better-Auth's
+  //      validateOrigin middleware would reject every same-origin POST
+  //      from the preview UI with INVALID_ORIGIN.
+  //   3. localhost — final fallback for local dev (`pnpm dev` on :3000).
+  baseURL:
+    process.env['BETTER_AUTH_URL'] ??
+    (process.env['VERCEL_URL'] ? `https://${process.env['VERCEL_URL']}` : 'http://localhost:3000'),
 
   emailAndPassword: {
     enabled: true,
