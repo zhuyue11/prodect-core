@@ -6,14 +6,23 @@ import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
 import { hash, verify } from './passwords';
 
-// Better-Auth instance. Persistence is the real Postgres database via
-// Prisma; password hashing is argon2id (overriding Better-Auth's default
-// scrypt) so the codebase has exactly one password-hashing primitive
-// — see lib/auth/passwords.ts for the why.
+// Better-Auth instance. Persistence is Postgres via Prisma; password hashing
+// is argon2id (overriding Better-Auth's default scrypt) so the codebase has
+// exactly one password-hashing primitive — see lib/auth/passwords.ts.
 //
-// Google OAuth is intentionally NOT configured here; that lands in Subtask
-// 1.1.4 as a `socialProviders.google = { … }` block plus account-linking
-// config tied to lib/users/repo.ts's findOrCreateOAuthUser.
+// Subtask 1.1.4 added Google OAuth as a peer sign-in method. The auto-link
+// policy lives in Better-Auth's `account.accountLinking` config (trustedProviders:
+// ['google']) — when a Google sign-in arrives with an email that matches an
+// existing User, Better-Auth links the new Account row to that User instead
+// of creating a duplicate. This is Story 1.1's decision (PRODECT.md "Current
+// state"); the security trade-off (Google-compromise → account takeover) is
+// acceptable for v1 because Google has already verified the email.
+//
+// Each Prodect-planned project supplies its own Google Cloud OAuth credentials
+// (per the planner-as-consumer principle, notes.html mistake #22): no shared
+// defaults ship. Missing creds → requiredEnv throws at module load, surfacing
+// the gap loudly instead of letting the Google button error mysteriously at
+// click time.
 //
 // Password reset (Subtask 1.1.6) is wired below via
 // emailAndPassword.sendResetPassword. Better-Auth mounts the request
@@ -103,6 +112,30 @@ export const auth = betterAuth({
         max: 3,
       },
     },
+  },
+
+  socialProviders: {
+    google: {
+      clientId: requiredEnv('GOOGLE_CLIENT_ID'),
+      clientSecret: requiredEnv('GOOGLE_CLIENT_SECRET'),
+    },
+  },
+
+  account: {
+    accountLinking: {
+      enabled: true,
+      // When a sign-in via a trusted provider arrives with an email that
+      // already exists on a local User, Better-Auth links the new Account
+      // row to that User. Google is trusted because it verifies email
+      // addresses before issuing tokens (the id_token's email_verified
+      // claim is enforced upstream). Add new providers here only after
+      // confirming the same.
+      trustedProviders: ['google'],
+    },
+    // Refresh persisted access/refresh tokens on every sign-in so a
+    // long-lived refresh token doesn't go stale. Default in Better-Auth,
+    // pinned here for AC visibility.
+    updateAccountOnSignIn: true,
   },
 
   // Better-Auth's default session cookie is already httpOnly + sameSite=lax
