@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type FormEvent } from 'react';
-import { Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { signUp } from '@/lib/auth/client';
@@ -13,13 +13,20 @@ import { GoogleButton } from '../_components/GoogleButton';
 /**
  * Sign-up. Two-step, following mockup 03 + the Clay pattern.
  *
- *   step 'identity' — Google button + Full name + Email + Continue.
- *                     Mockup 03 only shows these fields, so password is
- *                     collected in a second step rather than crammed on
- *                     one screen. This is a planner decision (not in the
- *                     card) — flagged in the PR body.
+ *   step 'identity' — Google button + Email + Continue.
+ *                     Password is collected in a second step rather than
+ *                     crammed on one screen (planner decision, not in the
+ *                     card; flagged in the PR body).
  *   step 'password' — Password field with the 8-char helper, Continue
  *                     button that creates the account.
+ *
+ * The `name` field is NOT collected from the user. Better-Auth's user
+ * schema requires a `name` column (NOT NULL); we derive it from the
+ * email localpart at create-time and let the user edit it later in
+ * profile settings. Rationale: per the Subtask card's AC, sign-up only
+ * requires email + 8+ char password — and per notes.html mistake #26,
+ * the mockup's name field is a layout-confirmation artifact, not a
+ * finishing-line spec.
  *
  * Errors:
  *   - Email already taken → inline, with a link back to /sign-in.
@@ -52,7 +59,6 @@ function SignUpForm() {
   const callbackURL = searchParams.get('next') ?? '/dashboard';
 
   const [step, setStep] = useState<'identity' | 'password'>('identity');
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -90,7 +96,11 @@ function SignUpForm() {
       const result = await signUp.email({
         email,
         password,
-        name: name.trim() || email.split('@')[0]!,
+        // Better-Auth's user schema requires a non-null `name`. We never
+        // ask the user for one (see file-level docstring); derive a
+        // sensible default from the email localpart that the user can
+        // override later in profile settings.
+        name: email.split('@')[0]!,
         callbackURL,
       });
       if (result?.error) {
@@ -134,17 +144,6 @@ function SignUpForm() {
           <GoogleButton callbackURL={callbackURL} onError={setPageError} />
           <OrDivider />
           <Input
-            type="text"
-            name="name"
-            autoComplete="name"
-            placeholder="Full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            addonStart={<User className="h-5 w-5" aria-hidden />}
-            aria-label="Full name"
-            autoFocus
-          />
-          <Input
             type="email"
             name="email"
             autoComplete="email"
@@ -160,6 +159,7 @@ function SignUpForm() {
             required
             error={emailExists ? 'An account with this email already exists.' : undefined}
             helperText={emailExists ? undefined : "We'll use this to sign you in."}
+            autoFocus
           />
           {emailExists ? (
             <p className="-mt-2 font-sans text-sm text-foreground">
