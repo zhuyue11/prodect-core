@@ -88,7 +88,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Prisma 7's `migrate deploy` does not auto-generate the client (unlike
       # `migrate dev`); next build's internal `tsc` then can't resolve
-      # PrismaClient. Generate explicitly before build.
+      # PrismaClient. Generate explicitly before build. The `migrate deploy`
+      # step that used to live here was folded into the `build` script in
+      # 8fc649d so every Vercel deploy self-migrates its target database
+      # (production Neon for prod, the per-PR Neon branch for previews) —
+      # `pnpm build` here invokes that same script and migrates this job's
+      # ephemeral Postgres service container.
       - run: pnpm prisma generate
-      - run: pnpm prisma migrate deploy
       - run: pnpm build
