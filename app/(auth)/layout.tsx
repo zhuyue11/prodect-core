@@ -1,49 +1,31 @@
-import Link from 'next/link';
 import { type ReactNode } from 'react';
 
 /**
  * Shared frame for the auth pages (sign-in, sign-up, reset-password,
- * reset-password/[token]). Matches the Clay-style design in the
- * Story-1.1 mockups (design/auth/01-12): no card chrome, wordmark
- * top-left, content column centered horizontally and left-aligned
- * within itself.
+ * reset-password/[token]). A white card centered on a tinted page
+ * background — see design/auth/* for the original Story-1.1 mockups
+ * and the v1.1.10 update note in PRODECT.md.
  *
- * The column itself constrains its inner width (~28rem on desktop,
- * full-width with horizontal padding on mobile) so individual pages
- * don't need to repeat the layout math.
+ * Wordmark is intentionally absent. In a real Prodect-planned project,
+ * the brand mark (wordmark + logomark) is scheduled as a late-Epic-4
+ * Subtask (agent or human task) once the product has enough surface
+ * for the brand decision to be informed. Until then we ship without
+ * placeholder branding rather than letting a filler "P" tile become
+ * load-bearing across every auth screen.
  *
- * Wordmark is plain typography for v1 — a brand mark replaces it once
- * one exists (see PRODECT.md "Story 1.1 / Design"). The "P" tile uses
- * the primary token so the brand color stays in one place.
+ * Width pinned to a literal value rather than `max-w-md`: the design
+ * system's @theme block defines a custom `--spacing-md` (= 16px)
+ * which Tailwind v4 resolves into the default `max-w-md` utility —
+ * leaving the column 16px wide. Pinning the card width here keeps
+ * the design-system token set un-touched and the layout predictable.
  */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen w-full overflow-x-clip bg-background">
-      <header className="px-6 pt-8 sm:px-10">
-        <Link
-          href="/"
-          aria-label="Prodect home"
-          className="inline-flex items-center gap-2 rounded-(--radius-sm) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-color) focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          <span
-            aria-hidden
-            className="inline-flex h-9 w-9 items-center justify-center rounded-(--radius-md) bg-primary font-serif text-lg font-semibold text-primary-foreground"
-          >
-            P
-          </span>
-          <span className="font-serif text-xl font-semibold text-foreground">Prodect</span>
-        </Link>
-      </header>
-      <main className="flex justify-center px-6 pb-24 pt-12 sm:px-10 sm:pt-24">
-        {/*
-          Width pinned to a literal value rather than `max-w-md`: the
-          design system's @theme block defines a custom `--spacing-md`
-          (= 16px) which Tailwind v4 resolves into the default
-          `max-w-md` utility — leaving the column 16px wide. Pinning
-          the auth-column width here keeps the design-system token
-          set un-touched and the layout predictable.
-        */}
-        <div className="w-full max-w-[28rem]">{children}</div>
+    <div className="flex min-h-screen w-full items-center justify-center overflow-x-clip bg-surface px-6 py-12 sm:px-10">
+      <main className="w-full max-w-[28rem]">
+        <div className="rounded-(--radius-card) bg-background px-6 py-10 shadow-(--shadow-elevated) sm:px-10">
+          {children}
+        </div>
       </main>
     </div>
   );
