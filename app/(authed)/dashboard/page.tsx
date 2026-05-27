@@ -1,5 +1,5 @@
 // SMOKE ROUTE — placeholder for Subtask 1.1.2.
-// Proves that the (authed) route group is gated by /middleware.ts and that
+// Proves that the (authed) route group is gated by /proxy.ts and that
 // server-side getSession() returns a populated session for an authenticated
 // request. The real dashboard lands in a later Story.
 
