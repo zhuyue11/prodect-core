@@ -101,11 +101,17 @@ export interface AddMemberInput {
   userId: string;
   workspaceId: string;
   role?: string;
+  // Optional transaction client so callers that need atomicity with
+  // other writes (e.g. invite-accept, which deletes the verification
+  // row + inserts the membership in one go) can hand in their tx
+  // instead of opening a nested one.
+  db?: typeof db | Prisma.TransactionClient;
 }
 
 export async function addMember(input: AddMemberInput): Promise<WorkspaceMembership> {
+  const client = input.db ?? db;
   try {
-    return await db.workspaceMembership.create({
+    return await client.workspaceMembership.create({
       data: {
         userId: input.userId,
         workspaceId: input.workspaceId,
