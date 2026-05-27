@@ -185,7 +185,8 @@ export const auth = betterAuth({
       // line 48), so subsequent flows see the user as verified.
       // The reverse direction (OAuth-first then email/password sign-in)
       // remains unsupported because OAuth-only users have no credential
-      // Account row with a password hash; see PRODECT_FINDINGS.md.
+      // Account row with a password hash; tracked in the planner-side
+      // PRODECT_FINDINGS.md (lives in ../prodect_plan/ in this workspace).
       requireLocalEmailVerified: false,
     },
     // Refresh persisted access/refresh tokens on every sign-in so a
