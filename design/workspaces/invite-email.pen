@@ -1,0 +1,1028 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "YCb34",
+      "x": 0,
+      "y": 0,
+      "name": "Invite email · HTML",
+      "clip": true,
+      "width": 760,
+      "height": 880,
+      "fill": "$--surface",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 40,
+      "children": [
+        {
+          "type": "frame",
+          "id": "uSDdB",
+          "width": "fill_container",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "tE8WN",
+              "fill": "$--muted-foreground",
+              "content": "Subject:",
+              "fontFamily": "$--font-mono",
+              "fontSize": 11,
+              "fontWeight": "600",
+              "letterSpacing": 0.6
+            },
+            {
+              "type": "text",
+              "id": "Lhx5p",
+              "fill": "$--foreground",
+              "content": "You're invited to join Acme Co. on Prodect",
+              "fontFamily": "$--font-sans",
+              "fontSize": 13,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "PoQbn",
+          "width": 600,
+          "fill": "$--background",
+          "cornerRadius": 8,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "$--hairline"
+          },
+          "layout": "vertical",
+          "gap": 24,
+          "padding": 40,
+          "children": [
+            {
+              "type": "text",
+              "id": "EstmO",
+              "fill": "$--muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Prodect",
+              "fontFamily": "$--font-sans",
+              "fontSize": 13,
+              "fontWeight": "500",
+              "letterSpacing": 0.2
+            },
+            {
+              "type": "frame",
+              "id": "cSa8z",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "E7UnqS",
+                  "fill": "$--foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Hi,",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "vXg1T",
+                  "fill": "$--foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Ben Liu invited you to join Acme Co. on Prodect.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oLbYC",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "$--primary",
+              "cornerRadius": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bIOeo",
+                  "fill": "$--primary-foreground",
+                  "content": "Accept invite",
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 15,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yrCtU",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IS4x8",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Or copy this link into your browser:",
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "P6A5MM",
+                  "fill": "$--info",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "https://prodect-core.vercel.app/invite/accept?token=fxr-3a8b91c2e7d4-9f206",
+                  "lineHeight": 1.4,
+                  "fontFamily": "$--font-mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "sKfdD",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$--hairline"
+            },
+            {
+              "type": "frame",
+              "id": "YyEH6",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "o2Mso",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "This invite expires in 7 days.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "SztXk",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Don't know Ben? You can safely ignore this email.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-sans",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "GbrrM",
+      "x": 840,
+      "y": 0,
+      "name": "Invite email · Plain text",
+      "clip": true,
+      "width": 760,
+      "height": 880,
+      "fill": "$--surface",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 40,
+      "children": [
+        {
+          "type": "frame",
+          "id": "FHkCy",
+          "width": "fill_container",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "nYkSx",
+              "fill": "$--muted-foreground",
+              "content": "Subject:",
+              "fontFamily": "$--font-mono",
+              "fontSize": 11,
+              "fontWeight": "600",
+              "letterSpacing": 0.6
+            },
+            {
+              "type": "text",
+              "id": "iqwol",
+              "fill": "$--foreground",
+              "content": "You're invited to join Acme Co. on Prodect",
+              "fontFamily": "$--font-sans",
+              "fontSize": 13,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "OHeXq",
+          "width": 600,
+          "fill": "$--background",
+          "cornerRadius": 8,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "$--hairline"
+          },
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 32,
+          "children": [
+            {
+              "type": "text",
+              "id": "xKtxC",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Hi,",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "NLq4f",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "iKO4f",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Ben Liu invited you to join Acme Co. on Prodect.",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "JfRjM",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "L8TJC",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Accept the invite by visiting this link:",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "A19dQr",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "ayFPc",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "https://prodect-core.vercel.app/invite/accept?token=fxr-3a8b91c2e7d4-9f206",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "wIzFu",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "VBw1h",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This invite expires in 7 days.",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "TKsdB",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "WvtNL",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Don't know Ben? You can safely ignore this email.",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "w4cHE",
+              "width": "fill_container",
+              "height": 6
+            },
+            {
+              "type": "text",
+              "id": "dv6Ts",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "— Prodect",
+              "lineHeight": 1.5,
+              "fontFamily": "$--font-mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "csKkB",
+      "x": 0,
+      "y": 0,
+      "name": "Invite email · HTML",
+      "clip": true,
+      "width": 760,
+      "height": 900,
+      "fill": "#f6f5f4",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": 40,
+      "children": [
+        {
+          "type": "text",
+          "id": "kx6Au",
+          "fill": "#5d5b54",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Subject: You're invited to join Acme Co. on Prodect",
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "500"
+        },
+        {
+          "type": "frame",
+          "id": "StJX4",
+          "width": "fill_container",
+          "fill": "#ffffff",
+          "cornerRadius": 8,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#e5e3df"
+          },
+          "layout": "vertical",
+          "gap": 20,
+          "padding": 40,
+          "children": [
+            {
+              "type": "text",
+              "id": "Sg9Qr",
+              "fill": "#787671",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Prodect",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "MCyVp",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Hi,",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "joL0U",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Ben Liu invited you to join Acme Co. on Prodect.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "L2NeE",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "#5645d4",
+              "cornerRadius": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Y3lTU",
+                  "fill": "#ffffff",
+                  "content": "Accept invite",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "AMkKO",
+              "fill": "#787671",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Or copy this link into your browser:",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "zlPaL",
+              "fill": "#0075de",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "https://prodect-core.vercel.app/invite/accept?token=fxr-3a8b91c2e7d4-9f206",
+              "lineHeight": 1.4,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "iJdSQ",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "#e5e3df"
+            },
+            {
+              "type": "text",
+              "id": "bmnM0",
+              "fill": "#787671",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This invite expires in 7 days.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "MOkv8",
+              "fill": "#787671",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Don't know Ben? You can safely ignore this email.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "IXCJy",
+      "x": 840,
+      "y": 0,
+      "name": "Invite email · Plain text",
+      "clip": true,
+      "width": 760,
+      "height": 900,
+      "fill": "#f6f5f4",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": 40,
+      "children": [
+        {
+          "type": "text",
+          "id": "E3WFJz",
+          "fill": "#5d5b54",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Subject: You're invited to join Acme Co. on Prodect",
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "500"
+        },
+        {
+          "type": "frame",
+          "id": "VUXMR",
+          "width": "fill_container",
+          "fill": "#ffffff",
+          "cornerRadius": 8,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#e5e3df"
+          },
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 32,
+          "children": [
+            {
+              "type": "text",
+              "id": "wJQeI",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Hi,",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "NBGIm",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "n0o6L",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Ben Liu invited you to join Acme Co. on Prodect.",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "qro4N",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "Fl7Ex",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Accept the invite by visiting this link:",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "Je05D",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "Y0atc",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "https://prodect-core.vercel.app/invite/accept?token=fxr-3a8b91c2e7d4-9f206",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "yVyBO",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "n1ZPv",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This invite expires in 7 days.",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "xaupf",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "d8XHp4",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Don't know Ben? You can safely ignore this email.",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "S0WF6m",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": " ",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "XdMFr",
+              "fill": "#1a1a1a",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "— Prodect",
+              "lineHeight": 1.5,
+              "fontFamily": "JetBrains Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "themes": {
+    "mode": [
+      "light",
+      "dark"
+    ]
+  },
+  "variables": {
+    "--background": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#ffffff",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#0f0f0f",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--charcoal": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#37352f",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#e5e5e5",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--destructive": {
+      "type": "color",
+      "value": "#e03131"
+    },
+    "--font-mono": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "--font-sans": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--font-serif": {
+      "type": "string",
+      "value": "Source Serif 4"
+    },
+    "--foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#1a1a1a",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#f3f4f6",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--hairline": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#e5e3df",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#2a2a2a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--hairline-strong": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#c8c4be",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#3a3a3a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--info": {
+      "type": "color",
+      "value": "#0075de"
+    },
+    "--link": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#0075de",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#58a6ff",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--muted-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#787671",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#a4a097",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#5645d4",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#7b6ce5",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--primary-foreground": {
+      "type": "color",
+      "value": "#ffffff"
+    },
+    "--radius-btn": {
+      "type": "number",
+      "value": 8
+    },
+    "--radius-card": {
+      "type": "number",
+      "value": 12
+    },
+    "--radius-input": {
+      "type": "number",
+      "value": 8
+    },
+    "--radius-pill": {
+      "type": "number",
+      "value": 9999
+    },
+    "--slate": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#5d5b54",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#a4a097",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--steel": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#787671",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#787671",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--stone": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#a4a097",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#5d5b54",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--success": {
+      "type": "color",
+      "value": "#1aae39"
+    },
+    "--surface": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#f6f5f4",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#1a1a1a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--surface-soft": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#fafaf9",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#161616",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--tint-mint": {
+      "type": "color",
+      "value": "#d9f3e1"
+    },
+    "--tint-peach": {
+      "type": "color",
+      "value": "#ffe8d4"
+    },
+    "--tint-rose": {
+      "type": "color",
+      "value": "#fde0ec"
+    },
+    "--tint-sky": {
+      "type": "color",
+      "value": "#dcecfa"
+    }
+  }
+}
