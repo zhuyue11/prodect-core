@@ -32,5 +32,5 @@ export const config = {
   // Every URL that maps to a file under /app/(authed)/* must be listed
   // here. As new authed routes are added in later Subtasks (1.2, 1.4, …)
   // they get appended to this list.
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/settings/:path*', '/invite/:path*'],
 };

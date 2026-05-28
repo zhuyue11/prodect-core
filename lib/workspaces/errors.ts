@@ -61,6 +61,17 @@ export class InviteEmailMismatchError extends Error {
   }
 }
 
+export class LastMemberError extends Error {
+  readonly code = 'LAST_MEMBER' as const;
+  constructor(workspaceId: string) {
+    super(
+      `Cannot leave workspace ${workspaceId}: you are the last member. ` +
+        `Delete the workspace instead.`,
+    );
+    this.name = 'LastMemberError';
+  }
+}
+
 export class InvalidEmailError extends Error {
   readonly code = 'INVALID_EMAIL' as const;
   constructor() {

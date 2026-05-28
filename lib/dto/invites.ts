@@ -15,3 +15,12 @@ export interface ValidateInviteResultDTO {
 export interface AcceptInviteResultDTO {
   workspaceId: string;
 }
+
+// Discriminated result for the acceptance UI's initial page load. Lets
+// the page render the distinct mockup states (valid / expired / used)
+// instead of collapsing them the way validateInvite() does for the
+// public GET endpoint.
+export type InspectInviteResultDTO =
+  | { status: 'valid'; workspaceName: string; inviterName: string; email: string }
+  | { status: 'expired' }
+  | { status: 'used' };

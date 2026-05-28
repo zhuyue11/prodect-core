@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
 import type {
   AcceptInviteResultDTO,
+  InspectInviteResultDTO,
   SendInviteResultDTO,
   ValidateInviteResultDTO,
 } from '@/lib/dto/invites';
@@ -231,6 +232,40 @@ export const workspaceInvitesService = {
     if (!workspace) return null;
 
     return toValidateInviteResultDTO({ workspace, inviter, email: payload.email });
+  },
+
+  /**
+   * Inspect a token for the acceptance PAGE (not the public GET
+   * endpoint). Unlike validateInvite — which collapses missing/expired
+   * to null so the world can't distinguish them — this returns a
+   * discriminated status so the acceptance page can render the three
+   * distinct mockup states:
+   *   - 'valid'   → row present, unexpired, payload + workspace resolve
+   *   - 'expired' → row present but past expiresAt
+   *   - 'used'    → row absent (consumed on a prior accept, or never
+   *                 existed — both render as "already used", which is the
+   *                 honest framing for a user who reached the page via a
+   *                 real link that no longer resolves)
+   *
+   * This is safe to expose to the signed-in invitee on the gated
+   * /invite/accept route; it is NOT mounted as a public endpoint.
+   */
+  async inspectInvite(token: string): Promise<InspectInviteResultDTO> {
+    const row = await verificationRepository.findByIdentifier(INVITE_IDENTIFIER_PREFIX + token);
+    if (!row) return { status: 'used' };
+    if (row.expiresAt.getTime() <= Date.now()) return { status: 'expired' };
+
+    const payload = parsePayload(row.value);
+    if (!payload) return { status: 'used' };
+
+    const [workspace, inviter] = await Promise.all([
+      workspaceRepository.findById(payload.workspaceId),
+      userRepository.findById(payload.inviterUserId),
+    ]);
+    if (!workspace) return { status: 'used' };
+
+    const dto = toValidateInviteResultDTO({ workspace, inviter, email: payload.email });
+    return { status: 'valid', ...dto };
   },
 
   /**

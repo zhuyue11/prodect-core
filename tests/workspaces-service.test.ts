@@ -2,14 +2,22 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/lib/db';
 import { usersService } from '@/lib/services/usersService';
 import { workspacesService } from '@/lib/services/workspacesService';
-import { AlreadyMemberError } from '@/lib/workspaces/errors';
+import { AlreadyMemberError, LastMemberError } from '@/lib/workspaces/errors';
 import { truncateAuthTables } from './helpers/db';
 
 // Service-layer tests for the Workspace + WorkspaceMembership
 // entities. Mirrors the layer split in CLAUDE.md.
 const { createUser } = usersService;
-const { addMember, createWorkspace, findMembership, listUserWorkspaces, removeMember } =
-  workspacesService;
+const {
+  addMember,
+  createWorkspace,
+  deleteWorkspace,
+  findMembership,
+  listMembers,
+  listUserWorkspaces,
+  removeMember,
+  renameWorkspace,
+} = workspacesService;
 // Old name preserved so the test bodies don't need to change.
 const findUserWorkspaces = listUserWorkspaces;
 
@@ -114,7 +122,7 @@ describe('addMember', () => {
 });
 
 describe('removeMember', () => {
-  it('deletes the membership row and returns it', async () => {
+  it('deletes a non-last membership row and returns it', async () => {
     const owner = await makeUser('owner@example.com');
     const invitee = await makeUser('invitee@example.com');
     const { workspace } = await createWorkspace({
@@ -130,6 +138,8 @@ describe('removeMember', () => {
     expect(removed?.userId).toBe(invitee.id);
 
     expect(await findMembership(invitee.id, workspace.id)).toBeNull();
+    // Owner's membership is untouched.
+    expect(await findMembership(owner.id, workspace.id)).not.toBeNull();
   });
 
   it('returns null when the membership does not exist (idempotent leave)', async () => {
@@ -145,6 +155,103 @@ describe('removeMember', () => {
       workspaceId: workspace.id,
     });
     expect(result).toBeNull();
+  });
+
+  it('throws LastMemberError when removing the only remaining member', async () => {
+    const owner = await makeUser('owner@example.com');
+    const { workspace } = await createWorkspace({
+      name: 'Solo',
+      ownerUserId: owner.id,
+    });
+
+    await expect(
+      removeMember({ userId: owner.id, workspaceId: workspace.id }),
+    ).rejects.toBeInstanceOf(LastMemberError);
+
+    // The membership is preserved — the guard fires before the delete.
+    expect(await findMembership(owner.id, workspace.id)).not.toBeNull();
+  });
+
+  it('lets the second-to-last member leave, then blocks the last one', async () => {
+    const owner = await makeUser('owner@example.com');
+    const invitee = await makeUser('invitee@example.com');
+    const { workspace } = await createWorkspace({ name: 'Team', ownerUserId: owner.id });
+    await addMember({ userId: invitee.id, workspaceId: workspace.id });
+
+    // invitee leaves — fine, owner remains.
+    await removeMember({ userId: invitee.id, workspaceId: workspace.id });
+    // owner is now last — blocked.
+    await expect(
+      removeMember({ userId: owner.id, workspaceId: workspace.id }),
+    ).rejects.toBeInstanceOf(LastMemberError);
+  });
+});
+
+describe('renameWorkspace', () => {
+  it('persists a new name and leaves the slug stable', async () => {
+    const owner = await makeUser('owner@example.com');
+    const { workspace } = await createWorkspace({ name: 'Old Name', ownerUserId: owner.id });
+
+    const result = await renameWorkspace({
+      workspaceId: workspace.id,
+      actorUserId: owner.id,
+      name: '  New Name  ',
+    });
+    expect(result.name).toBe('New Name');
+    expect(result.slug).toBe(workspace.slug);
+
+    const persisted = await db.workspace.findUnique({ where: { id: workspace.id } });
+    expect(persisted?.name).toBe('New Name');
+  });
+
+  it('rejects a rename from a non-member', async () => {
+    const owner = await makeUser('owner@example.com');
+    const stranger = await makeUser('stranger@example.com');
+    const { workspace } = await createWorkspace({ name: 'Private', ownerUserId: owner.id });
+
+    await expect(
+      renameWorkspace({ workspaceId: workspace.id, actorUserId: stranger.id, name: 'Hacked' }),
+    ).rejects.toMatchObject({ code: 'NOT_A_MEMBER' });
+  });
+});
+
+describe('listMembers', () => {
+  it('returns member DTOs ordered by membership creation, owner first', async () => {
+    const owner = await makeUser('owner@example.com', 'Owner Person');
+    const invitee = await makeUser('invitee@example.com', 'Invitee Person');
+    const { workspace } = await createWorkspace({ name: 'Team', ownerUserId: owner.id });
+    await addMember({ userId: invitee.id, workspaceId: workspace.id });
+
+    const members = await listMembers(workspace.id, owner.id);
+    expect(members).toEqual([
+      { userId: owner.id, name: 'Owner Person', email: 'owner@example.com', role: 'member' },
+      { userId: invitee.id, name: 'Invitee Person', email: 'invitee@example.com', role: 'member' },
+    ]);
+  });
+});
+
+describe('deleteWorkspace', () => {
+  it('deletes the workspace and cascades to memberships', async () => {
+    const owner = await makeUser('owner@example.com');
+    const invitee = await makeUser('invitee@example.com');
+    const { workspace } = await createWorkspace({ name: 'Doomed', ownerUserId: owner.id });
+    await addMember({ userId: invitee.id, workspaceId: workspace.id });
+
+    await deleteWorkspace({ workspaceId: workspace.id, actorUserId: owner.id });
+
+    expect(await db.workspace.findUnique({ where: { id: workspace.id } })).toBeNull();
+    expect(await db.workspaceMembership.count({ where: { workspaceId: workspace.id } })).toBe(0);
+  });
+
+  it('rejects a delete from a non-member', async () => {
+    const owner = await makeUser('owner@example.com');
+    const stranger = await makeUser('stranger@example.com');
+    const { workspace } = await createWorkspace({ name: 'Private', ownerUserId: owner.id });
+
+    await expect(
+      deleteWorkspace({ workspaceId: workspace.id, actorUserId: stranger.id }),
+    ).rejects.toMatchObject({ code: 'NOT_A_MEMBER' });
+    expect(await db.workspace.findUnique({ where: { id: workspace.id } })).not.toBeNull();
   });
 });
 

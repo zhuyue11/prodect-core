@@ -91,3 +91,20 @@ export function extractResetUrl(email: CapturedEmail): string {
   }
   return match[0];
 }
+
+/**
+ * Pulls the first http(s):// URL out of a workspace-invite email body.
+ * The invite email template (lib/emailTemplates/workspaceInvite.tsx)
+ * keeps the accept link unredacted in the plain-text body, mirroring the
+ * reset email's dev-console contract — so the same regex works.
+ */
+export function extractInviteUrl(email: CapturedEmail): string {
+  const match = email.text.match(/https?:\/\/[^\s)]+/);
+  if (!match) {
+    throw new Error(
+      `Could not find a URL in the invite email. Body:\n${email.text}\n` +
+        `(Did the workspaceInvite template's plain-text body change shape?)`,
+    );
+  }
+  return match[0];
+}

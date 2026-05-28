@@ -1,5 +1,12 @@
-import { Prisma, type Workspace, type WorkspaceMembership } from '@prisma/client';
+import { Prisma, type User, type Workspace, type WorkspaceMembership } from '@prisma/client';
 import { db } from '@/lib/db';
+
+// A membership row joined with the slice of its user the members list
+// renders. Kept here (not in the service) because the join shape is a
+// data-access concern; the service maps it to a DTO.
+export type MembershipWithUser = WorkspaceMembership & {
+  user: Pick<User, 'id' | 'name' | 'email'>;
+};
 
 // WorkspaceMembership repository — single Prisma operations on the
 // `workspace_membership` join table. Owns its own file (not nested under
@@ -28,6 +35,36 @@ export const workspaceMembershipRepository = {
       include: { workspace: true },
     });
     return rows.map((r) => r.workspace);
+  },
+
+  /**
+   * Members of a workspace joined with the user fields the settings
+   * Members card renders, ordered by membership.createdAt asc so the
+   * owner (first membership) lands first. Takes `tx` because the
+   * workspace_membership RLS policy reads the per-transaction GUCs set
+   * by withWorkspaceContext — outside that transaction the policy sees
+   * NULL and returns zero rows under the non-bypass app role.
+   */
+  async findMembersByWorkspace(
+    workspaceId: string,
+    tx: Prisma.TransactionClient,
+  ): Promise<MembershipWithUser[]> {
+    return tx.workspaceMembership.findMany({
+      where: { workspaceId },
+      orderBy: { createdAt: 'asc' },
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+  },
+
+  /**
+   * Count of memberships in a workspace. Takes `tx` so the last-member
+   * guard in workspacesService.removeMember reads the count and deletes
+   * the row in the same transaction — preventing a TOCTOU race where two
+   * concurrent leaves both see count > 1 and both delete, orphaning the
+   * workspace.
+   */
+  async countByWorkspace(workspaceId: string, tx: Prisma.TransactionClient): Promise<number> {
+    return tx.workspaceMembership.count({ where: { workspaceId } });
   },
 
   async create(
