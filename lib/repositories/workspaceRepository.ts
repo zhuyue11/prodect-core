@@ -21,4 +21,16 @@ export const workspaceRepository = {
   ): Promise<Workspace> {
     return tx.workspace.create({ data });
   },
+
+  async update(
+    id: string,
+    data: { name: string },
+    tx: Prisma.TransactionClient,
+  ): Promise<Workspace> {
+    return tx.workspace.update({ where: { id }, data });
+  },
+
+  async delete(id: string, tx: Prisma.TransactionClient): Promise<Workspace> {
+    return tx.workspace.delete({ where: { id } });
+  },
 };
