@@ -128,8 +128,17 @@ export const auth = betterAuth({
   // The path here is /request-password-reset (not /forget-password):
   // that's the canonical endpoint mounted by better-auth@1.6.11's
   // password.mjs route module.
+  // PRODECT_FINDINGS #9: Better-Auth groups /sign-in, /sign-up,
+  // /change-password, /change-email into ONE IP-keyed bucket (window 10s,
+  // max 3). A multi-user E2E flow signs up two users from localhost (one IP)
+  // inside that window, so the second /sign-up/email returns 429 and the spec
+  // flakes. The durable fix is an explicit opt-in env flag, honored ONLY here
+  // and set ONLY in playwright.config.ts's webServer.env — production never
+  // sets it, so the limiter stays fully active in prod. The flag is opt-in
+  // (default: limiter on) so a prod box with NODE_ENV unset can't accidentally
+  // ship with rate limiting off.
   rateLimit: {
-    enabled: true,
+    enabled: process.env['E2E_DISABLE_RATE_LIMIT'] !== '1',
     customRules: {
       '/request-password-reset': {
         window: 3600,

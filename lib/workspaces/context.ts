@@ -43,3 +43,25 @@ export async function withWorkspaceContext<T>(
     return fn(tx);
   });
 }
+
+/**
+ * Opens a Prisma transaction binding ONLY the `app.user_id` GUC, then
+ * invokes `fn` with the transaction client. This is the half-context used
+ * while RESOLVING which workspace a request acts within: the workspace id
+ * isn't known yet (that's what the resolver is computing), so only the
+ * user GUC can be bound. The membership-scoped RLS policies still bite —
+ * they gate on `app.user_id` — so a non-superuser connection sees only the
+ * caller's own membership rows.
+ *
+ * Once the active workspace is known, tenant-scoped query paths should use
+ * withWorkspaceContext (both GUCs) instead.
+ */
+export async function withUserContext<T>(
+  userId: string,
+  fn: (tx: Prisma.TransactionClient) => Promise<T>,
+): Promise<T> {
+  return db.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT set_config('app.user_id', ${userId}, true)`;
+    return fn(tx);
+  });
+}

@@ -171,6 +171,21 @@ click-outside, focus-return all handled. Controlled via `open` +
 **When to use**: confirmations, single-purpose forms, full-context dialogs.
 Not for transient notifications (`Toast`) or inline editing (popover).
 
+**a11y contract (`title` / `description`).** Radix associates a dialog with
+a _labelling_ element (`Dialog.Title`) and a _describing_ element
+(`Dialog.Description`) and warns in dev if either is absent without an
+explicit opt-out. The `Modal` primitive handles both for you:
+
+- `title` omitted → a visually-hidden `Dialog.Title` is rendered so the
+  dialog is still labelled. Prefer passing a real `title`; omit it only when
+  you render your own heading row inside the body (e.g. an icon + custom
+  text), and rely on the sr-only fallback for the accessible name.
+- `description` omitted → the primitive sets `aria-describedby={undefined}`
+  on the content to declare "no description" (the explicit opt-out), so no
+  warning fires. When you do pass `description`, Radix auto-wires
+  `aria-describedby` to it. Pass a `description` whenever the dialog's
+  purpose isn't obvious from its title + first line of body.
+
 ### Pill
 
 ```tsx

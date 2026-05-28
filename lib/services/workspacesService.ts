@@ -5,6 +5,7 @@ import { workspaceMembershipRepository } from '@/lib/repositories/workspaceMembe
 import { userRepository } from '@/lib/repositories/userRepository';
 import { toCurrentWorkspaceDTO } from '@/lib/mappers/workspaceMappers';
 import type { CurrentWorkspaceDTO } from '@/lib/dto/workspaces';
+import { withUserContext } from '@/lib/workspaces/context';
 import { AlreadyMemberError, NotAMemberError, SlugCollisionError } from '@/lib/workspaces/errors';
 
 // Workspaces service — business logic for the Workspace and
@@ -201,6 +202,55 @@ export const workspacesService = {
       const { workspace, ...membership } = first;
       return toCurrentWorkspaceDTO(workspace, membership);
     });
+  },
+
+  /**
+   * Resolve which workspace a request acts within, returning just its id.
+   * This is the business logic behind the workspace-context resolver
+   * (lib/workspaces/middleware.ts); the resolver now only parses the
+   * session + cookie and delegates here.
+   *
+   * Resolution order:
+   *   1. cookie-pinned workspace, IF the user has a membership in it;
+   *   2. otherwise the user's first membership (createdAt asc — the
+   *      auto-created default from Subtask 1.2.4 lands first);
+   *   3. zero memberships → self-heal via ensureDefaultWorkspace and
+   *      return the workspace it guarantees.
+   *
+   * The membership reads run inside withUserContext so the `app.user_id`
+   * GUC is bound first and the RLS membership policies bite even on a
+   * non-superuser connection. The self-heal runs OUTSIDE that transaction
+   * because ensureDefaultWorkspace owns its own transaction (with a
+   * FOR UPDATE lock on the user row); nesting it would deadlock on the
+   * same connection.
+   *
+   * `userName` seeds the default workspace name on the self-heal path;
+   * when the caller has no session object on hand it is read off the user
+   * row before backfilling.
+   */
+  async resolveActiveWorkspace(
+    userId: string,
+    cookieWorkspaceId: string | null,
+    userName?: string,
+  ): Promise<string | null> {
+    const existing = await withUserContext(userId, async (tx) => {
+      if (cookieWorkspaceId) {
+        const pinned = await workspaceMembershipRepository.findByUserAndWorkspaceWithWorkspace(
+          userId,
+          cookieWorkspaceId,
+          tx,
+        );
+        if (pinned) return pinned.workspaceId;
+      }
+      const first = await workspaceMembershipRepository.findFirstByUserWithWorkspace(userId, tx);
+      return first?.workspaceId ?? null;
+    });
+
+    if (existing) return existing;
+
+    const name = userName ?? (await userRepository.findById(userId))?.name ?? 'My';
+    const { workspace } = await this.ensureDefaultWorkspace({ userId, userName: name });
+    return workspace.id;
   },
 
   async findMembership(userId: string, workspaceId: string): Promise<WorkspaceMembership | null> {
