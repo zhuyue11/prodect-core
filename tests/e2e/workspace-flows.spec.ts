@@ -5,10 +5,11 @@
 // @smoke — Story 1.2's user-facing flow. Reuses the file-outbox email
 // capture from Story 1.1.6 and the db-reset helper from 1.1.7.
 //
-// Subtask 1.2.4 (auto-create workspace on signup) has NOT shipped yet, so
-// a fresh sign-up lands with ZERO workspaces: the switcher renders a
-// "Create workspace" CTA instead of a name. This spec creates the first
-// workspace explicitly, which also exercises that empty-state path.
+// Subtask 1.2.4 (auto-create workspace on signup) IS shipped: a fresh
+// sign-up lands with one auto-created "{name}'s Workspace" already active,
+// so the switcher shows that name (never the empty-state CTA). This spec
+// creates an ADDITIONAL named workspace via the switcher popover and works
+// against it, so every user here has ≥1 workspace at all times.
 
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { resetDatabase, db } from './_helpers/db-reset';
@@ -106,11 +107,13 @@ test('@smoke workspace lifecycle: create, rename, invite, accept, switch, leave,
   browser,
   page,
 }) => {
-  // ─── Owner signs up and creates their first workspace ───
+  // ─── Owner signs up (auto-workspace created) and adds a named one ───
   await signUp(page, OWNER_EMAIL);
+  // 1.2.4 auto-creates "e2e-ws-owner's Workspace"; create a second, named
+  // one and switch to it so the rest of the flow works against it.
   await createWorkspace(page, 'Acme Co.');
 
-  // ─── Rename the workspace via settings ───
+  // ─── Rename the active workspace via settings ───
   await gotoAuthed(page, '/settings/workspace');
   await expect(page.getByRole('heading', { name: 'Workspace settings' })).toBeVisible();
   const nameInput = page.getByLabel('Workspace name');
@@ -147,8 +150,9 @@ test('@smoke workspace lifecycle: create, rename, invite, accept, switch, leave,
   await inviteePage.getByRole('button', { name: 'Accept invite' }).click();
   await inviteePage.waitForURL('**/dashboard');
 
-  // Invitee's switcher shows ONLY the joined workspace (no auto-created
-  // one, since 1.2.4 isn't shipped and they created none of their own).
+  // Accepting switches the active workspace to the joined one, so the
+  // switcher trigger now shows "Acme Renamed" (the invitee also still has
+  // their own auto-created workspace, listed in the popover).
   await expect(inviteePage.getByRole('button', { name: 'Switch workspace' })).toContainText(
     'Acme Renamed',
   );
@@ -175,13 +179,20 @@ test('@smoke workspace lifecycle: create, rename, invite, accept, switch, leave,
     'Acme Renamed',
   );
 
-  // ─── Invitee leaves the workspace ───
+  // ─── Invitee leaves "Acme Renamed" ───
+  // Ensure "Acme Renamed" is the invitee's active workspace before leaving
+  // (accept switched to it; nothing has changed it since).
   await gotoAuthed(inviteePage, '/settings/workspace');
+  await expect(inviteePage.getByRole('button', { name: 'Switch workspace' })).toContainText(
+    'Acme Renamed',
+  );
   await inviteePage.getByRole('button', { name: 'Leave' }).click();
-  // They had only the one workspace → redirected to dashboard, switcher
-  // now shows the create CTA (empty state).
+  // The invitee still has their own auto-created workspace, so leaving
+  // falls back to it (not an empty state) and redirects to the dashboard.
   await inviteePage.waitForURL('**/dashboard');
-  await expect(inviteePage.getByRole('button', { name: 'Create workspace' })).toBeVisible();
+  await expect(inviteePage.getByRole('button', { name: 'Switch workspace' })).toContainText(
+    "e2e-ws-invitee's Workspace",
+  );
 
   // Owner's members list is back to just themselves.
   await gotoAuthed(page, '/settings/workspace');
@@ -211,10 +222,16 @@ test('@smoke workspace lifecycle: create, rename, invite, accept, switch, leave,
   // ─── Cascade verified by DB query ───
   expect(await db.workspace.findUnique({ where: { id: acmeWorkspace!.id } })).toBeNull();
   expect(await db.workspaceMembership.count({ where: { workspaceId: acmeWorkspace!.id } })).toBe(0);
-  // Owner still has "Side Project".
-  await expect(page.getByRole('button', { name: 'Switch workspace' })).toContainText(
-    'Side Project',
+  // Deleting the active workspace falls back to a remaining one (the
+  // owner still has their auto-created workspace + "Side Project"), so the
+  // switcher no longer shows the deleted name.
+  await expect(page.getByRole('button', { name: 'Switch workspace' })).not.toContainText(
+    'Acme Renamed',
   );
+  // "Side Project" still exists in the owner's list.
+  await page.getByRole('button', { name: 'Switch workspace' }).click();
+  await expect(page.getByRole('list').getByText('Side Project')).toBeVisible();
+  await expect(page.getByRole('list').getByText('Acme Renamed')).toHaveCount(0);
 
   await inviteeContext.close();
 });
