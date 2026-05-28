@@ -128,6 +128,11 @@ test('@smoke workspace lifecycle: create, rename, invite, accept, switch, leave,
   // ─── Invite the second user ───
   await page.getByRole('button', { name: 'Invite' }).click();
   const inviteDialog = page.getByRole('dialog');
+  // Regression guard: the Modal primitive must render at its intended
+  // width, not collapse to ~16px. (max-w-md once resolved against the
+  // design system's --spacing-md token; pinned to a literal rem since.)
+  const dialogBox = await inviteDialog.boundingBox();
+  expect(dialogBox?.width ?? 0).toBeGreaterThan(300);
   await inviteDialog.getByLabel('Email address').fill(INVITEE_EMAIL);
   await inviteDialog.getByRole('button', { name: 'Send invite' }).click();
   // Radix Toast renders the title twice (visible toast + an aria-live

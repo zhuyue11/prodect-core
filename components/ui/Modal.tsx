@@ -34,10 +34,16 @@ const contentVariants = cva(
   ),
   {
     variants: {
+      // Literal widths, NOT the max-w-sm/md/lg utilities: the design
+      // system's @theme defines --spacing-sm/md/lg (12/16/20px), and
+      // Tailwind v4 resolves `max-w-{key}` against the --spacing-* scale
+      // when that key exists — so `max-w-md` would collapse the modal to
+      // 16px wide. Pinning the rem values (Tailwind's stock sm/md/lg) keeps
+      // the design-system token set untouched and the dialog readable.
       size: {
-        sm: 'max-w-sm',
-        md: 'max-w-md',
-        lg: 'max-w-lg',
+        sm: 'max-w-[24rem]',
+        md: 'max-w-[28rem]',
+        lg: 'max-w-[32rem]',
       },
     },
     defaultVariants: { size: 'md' },
