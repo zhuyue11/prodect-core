@@ -8,6 +8,27 @@ import { config as loadEnv } from 'dotenv';
 // the repo root before defineConfig() runs.
 loadEnv();
 
+// PRODECT_FINDINGS #8: the suite used to hardcode http://localhost:3000 for
+// baseURL, webServer.url, and (implicitly) Better-Auth's trustedOrigins. That
+// blocked running the suite from a `git worktree` while a sibling Subtask
+// already owned :3000 — the parallel-worktree workflow the manual-merge mode
+// assumes. Three things had to move off the fixed port together:
+//   1. Playwright baseURL + webServer.url (below).
+//   2. Better-Auth's CSRF origin guard — handled by passing BETTER_AUTH_URL
+//      into webServer.env; lib/auth/index.ts already threads that through both
+//      baseURL and trustedOrigins, so no auth-code change is needed.
+//   3. reuseExistingServer — must be off when a custom port is requested, or a
+//      worktree could silently reuse a sibling's :3000 server (wrong code).
+// Usage from a worktree:  E2E_BASE_URL=http://localhost:3100 pnpm test:e2e
+// (or PORT=3100). Default stays :3000 so existing invocations are unchanged.
+// E2E_BASE_URL is the single source of truth when set: the dev-server PORT is
+// derived FROM it so the spawned server and the URL Playwright drives can't
+// disagree (a bare E2E_BASE_URL with a stale PORT would otherwise boot the
+// server on one port and drive another).
+const USING_CUSTOM_ORIGIN = Boolean(process.env['E2E_BASE_URL']) || Boolean(process.env['PORT']);
+const BASE_URL = process.env['E2E_BASE_URL'] ?? `http://localhost:${process.env['PORT'] ?? '3000'}`;
+const PORT = new URL(BASE_URL).port || '3000';
+
 /**
  * Playwright config for prodect-core's E2E auth smoke suite.
  *
@@ -47,7 +68,7 @@ export default defineConfig({
     : [['list'], ['html', { open: 'never', outputFolder: 'out/playwright-report' }]],
   outputDir: 'out/playwright-output',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: BASE_URL,
     // Trace on failure keeps zips small (one per failing test) while
     // giving full debugging context. `on-first-retry` would also work
     // but we don't always retry; `retain-on-failure` is the safe pick.
@@ -67,9 +88,12 @@ export default defineConfig({
     // environments write reset emails to a file the specs can read.
     // NODE_ENV is left unset (Next dev sets it to 'development') so the
     // 'file' provider's production-guard doesn't fire.
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env['CI'],
+    command: `pnpm dev --port ${PORT}`,
+    url: BASE_URL,
+    // Reuse a running dev server locally for fast iteration — but NEVER when a
+    // custom origin was requested (a worktree run), since the only server that
+    // could be reused on that port is a sibling's, running different code.
+    reuseExistingServer: !process.env['CI'] && !USING_CUSTOM_ORIGIN,
     timeout: 120_000,
     stdout: 'pipe',
     stderr: 'pipe',
@@ -84,6 +108,17 @@ export default defineConfig({
       // untouched.
       E2E_TEST_OAUTH: '1',
       E2E_TEST_OAUTH_USER_PATH: path.resolve('/tmp/prodect-test-oauth-user.json'),
+      // PRODECT_FINDINGS #8: hand the dev server the same origin Playwright
+      // drives. lib/auth/index.ts uses BETTER_AUTH_URL as both its baseURL and
+      // a trustedOrigins entry, so this is what lets /api/auth/* POSTs pass the
+      // CSRF origin guard on a non-default port.
+      BETTER_AUTH_URL: BASE_URL,
+      // PRODECT_FINDINGS #9: Better-Auth buckets /sign-in + /sign-up into one
+      // IP-keyed window (10s / max 3). Multi-user specs sign up several users
+      // from localhost inside that window and hit 429s. This flag disables the
+      // limiter for the E2E dev server only; lib/auth/index.ts reads it and
+      // leaves the limiter fully active everywhere it isn't set (i.e. prod).
+      E2E_DISABLE_RATE_LIMIT: '1',
     },
   },
 });

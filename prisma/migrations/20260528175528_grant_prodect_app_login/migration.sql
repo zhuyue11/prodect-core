@@ -1,0 +1,35 @@
+-- PRODECT_FINDINGS #5(deploy): make the non-bypass `prodect_app` role usable
+-- as a RUNTIME connection identity, so the workspace RLS policies (added in
+-- 20260527134009_add_workspace_rls) actually bite in deployed environments.
+--
+-- Background: the dev/CI default role `prodect` is a Docker-image superuser
+-- with an implicit BYPASSRLS attribute, which renders every RLS policy inert
+-- regardless of `FORCE ROW LEVEL SECURITY`. The add_workspace_rls migration
+-- already created `prodect_app` as NOLOGIN NOSUPERUSER NOBYPASSRLS and granted
+-- it CRUD on public.* — but NOLOGIN means nothing can *connect* as it; it only
+-- works for `SET LOCAL ROLE prodect_app` from an already-connected session
+-- (which is how tests/workspace-rls.test.ts exercises the policies today).
+--
+-- This migration grants the LOGIN *capability* only. It deliberately does NOT
+-- set a password:
+--   * A static password literal committed to git is a credential-management
+--     anti-pattern if the same migration runs in production.
+--   * Prisma migrations are environment-agnostic SQL (the identical file runs
+--     in dev, CI, and prod), so a "dev-only password" can't be expressed here.
+-- The password is therefore provisioned OUT OF BAND, per environment:
+--   * Local dev / CI: `scripts/db-up.sh` runs an idempotent
+--     `ALTER ROLE prodect_app WITH PASSWORD '<dev-pw>'` after migrations apply.
+--   * Production: the deploy (or the managed Postgres provider — Neon /
+--     Supabase / RDS) sets the password from its secret store and points the
+--     runtime DATABASE_URL at `prodect_app`. No secret ever lands in git.
+--
+-- This migration is purely additive and safe to land before the deploy target
+-- is chosen: the role gains LOGIN but stays unused until a DATABASE_URL points
+-- at it. The active dev/CI DATABASE_URL still connects as `prodect`, so the
+-- existing test suite (which relies on superuser visibility for fixture
+-- setup/teardown and on `SET LOCAL ROLE prodect_app` for the RLS assertions)
+-- is unaffected. The runtime cutover — flipping DATABASE_URL to prodect_app and
+-- reworking fixtures onto a two-client (admin-for-setup) harness — is tracked
+-- as a follow-up in PRODECT_FINDINGS #5(deploy) for Story 1.5's deploy
+-- hardening.
+ALTER ROLE prodect_app WITH LOGIN;
