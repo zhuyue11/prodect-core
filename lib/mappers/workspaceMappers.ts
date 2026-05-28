@@ -1,5 +1,12 @@
 import type { Workspace, WorkspaceMembership } from '@prisma/client';
-import type { CurrentWorkspaceDTO, MembershipDTO, WorkspaceDTO } from '@/lib/dto/workspaces';
+import type { MembershipWithUser } from '@/lib/repositories/workspaceMembershipRepository';
+import type {
+  CurrentWorkspaceDTO,
+  MembershipDTO,
+  WorkspaceDTO,
+  WorkspaceMemberDTO,
+  WorkspaceSummaryDTO,
+} from '@/lib/dto/workspaces';
 
 // Prisma → DTO converters for the workspace domain. The service calls these
 // just before returning so no Prisma row shape leaks across the API boundary.
@@ -29,5 +36,24 @@ export function toCurrentWorkspaceDTO(
   return {
     workspace: toWorkspaceDTO(workspace),
     membership: toMembershipDTO(membership),
+  };
+}
+
+export function toWorkspaceMemberDTO(row: MembershipWithUser): WorkspaceMemberDTO {
+  return {
+    userId: row.user.id,
+    // Fall back to the email localpart when the user has no display name
+    // (OAuth users without a name claim, or pre-name-collection rows).
+    name: row.user.name || row.user.email.split('@')[0]!,
+    email: row.user.email,
+    role: row.role,
+  };
+}
+
+export function toWorkspaceSummaryDTO(workspace: Workspace): WorkspaceSummaryDTO {
+  return {
+    id: workspace.id,
+    name: workspace.name,
+    slug: workspace.slug,
   };
 }
