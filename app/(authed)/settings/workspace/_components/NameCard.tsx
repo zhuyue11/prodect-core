@@ -39,7 +39,7 @@ export function NameCard({ initialName }: { initialName: string }) {
           submitted.current = true;
           formAction(formData);
         }}
-        className="flex items-end gap-3"
+        className="flex items-start gap-3"
       >
         <div className="flex-1">
           <Input
@@ -50,7 +50,17 @@ export function NameCard({ initialName }: { initialName: string }) {
             helperText="Visible to everyone in this workspace."
           />
         </div>
-        <Button type="submit" variant="primary" loading={pending} disabled={!name.trim()}>
+        {/* The Input renders helper text below the box, so the row is taller
+            than the control. Align to the row top and match the button to the
+            input box height (44px) so it sits flush with the box, not the
+            helper text underneath it. */}
+        <Button
+          type="submit"
+          variant="primary"
+          loading={pending}
+          disabled={!name.trim()}
+          className="h-(--height-input)"
+        >
           Save
         </Button>
       </form>
