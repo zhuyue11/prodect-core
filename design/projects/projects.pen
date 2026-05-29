@@ -1,0 +1,1705 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "HHBtO",
+      "x": 0,
+      "y": 0,
+      "name": "Create Project Modal",
+      "clip": true,
+      "width": 1280,
+      "height": 720,
+      "fill": "#9a9893",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "oR62U",
+          "name": "Modal",
+          "width": 512,
+          "fill": "$--background",
+          "cornerRadius": "$--radius-modal",
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#0f0f0f29",
+            "offset": {
+              "x": 0,
+              "y": 16
+            },
+            "blur": 48,
+            "spread": -8
+          },
+          "layout": "vertical",
+          "gap": 24,
+          "padding": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ZmERq",
+              "name": "Header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EJBdA",
+                  "fill": "$--foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Create project",
+                  "fontFamily": "$--font-serif",
+                  "fontSize": 24,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "v28Ka",
+              "name": "Form",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "vX2u8",
+                  "name": "Name Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "m0gctj",
+                      "fill": "$--foreground",
+                      "content": "Project name",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fh1ey",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 44,
+                      "fill": "$--background",
+                      "cornerRadius": "$--radius-input",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--hairline-strong"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "JxMye",
+                          "fill": "$--muted-foreground",
+                          "content": "Mobile App",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 16,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "c69Jq",
+                  "name": "Identifier Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xL6jQ",
+                      "fill": "$--foreground",
+                      "content": "Identifier",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ukjAV",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 44,
+                      "fill": "$--background",
+                      "cornerRadius": "$--radius-input",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--hairline-strong"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "OsLFQ",
+                          "fill": "$--foreground",
+                          "content": "PROD",
+                          "fontFamily": "$--font-mono",
+                          "fontSize": 16,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "RsCu9",
+                      "fill": "$--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "3–5 uppercase characters. Work items will be keyed PROD-1, PROD-2, …",
+                      "lineHeight": 1.4,
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "E2P1u",
+              "name": "Modal.Footer",
+              "width": "fill_container",
+              "gap": 12,
+              "justifyContent": "end",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "NwFoE",
+                  "name": "Button ghost",
+                  "height": 40,
+                  "cornerRadius": "$--radius-btn",
+                  "padding": [
+                    10,
+                    18
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QtIqZ",
+                      "fill": "$--foreground",
+                      "content": "Cancel",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DOFJj",
+                  "name": "Button primary",
+                  "height": 40,
+                  "fill": "$--primary",
+                  "cornerRadius": "$--radius-btn",
+                  "padding": [
+                    10,
+                    18
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "JWaas",
+                      "fill": "$--primary-foreground",
+                      "content": "Create project",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "XtTpa",
+      "x": 1360,
+      "y": 0,
+      "name": "Empty State",
+      "clip": true,
+      "width": 1280,
+      "height": 720,
+      "fill": "$--background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "hpPFi",
+          "name": "TopNav",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--background",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--hairline"
+          },
+          "padding": [
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "h0Tnv",
+              "name": "Nav Left",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Ms1tX",
+                  "name": "Workspace Switcher",
+                  "height": 40,
+                  "cornerRadius": "$--radius-btn",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--hairline"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tsvRf",
+                      "fill": "$--foreground",
+                      "content": "Alice's Workspace",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "z3jcpf",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pDtoy",
+                  "name": "Project Switcher",
+                  "height": 40,
+                  "cornerRadius": "$--radius-btn",
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mF99N",
+                      "fill": "$--muted-foreground",
+                      "content": "No project",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "mR4I3",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lBm3R",
+              "name": "Avatar",
+              "width": 36,
+              "height": 36,
+              "fill": "#1a1a1a",
+              "cornerRadius": 18,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "iBuy2",
+                  "fill": "$--primary",
+                  "content": "A",
+                  "fontFamily": "$--font-primary",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "S4H9Z",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "padding": 32,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "dHTkl",
+              "name": "EmptyState Card",
+              "width": 520,
+              "fill": "$--background",
+              "cornerRadius": "$--radius-card",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "$--hairline"
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 48,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "QglUS",
+                  "name": "Icon",
+                  "width": 48,
+                  "height": 48,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "SZtlo",
+                      "width": 48,
+                      "height": 48,
+                      "iconFontName": "folder",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "nbNu7",
+                  "fill": "$--foreground",
+                  "content": "Create your first project",
+                  "fontFamily": "$--font-serif",
+                  "fontSize": 24,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "p8bDP3",
+                  "name": "Desc Wrap",
+                  "width": 360,
+                  "layout": "vertical",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mrInv",
+                      "fill": "$--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Projects group your work items and give them a key like PROD-1. Create one to start planning.",
+                      "lineHeight": 1.45,
+                      "textAlign": "center",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uVwRW",
+                  "name": "CTA Wrap",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "bkE8b",
+                      "name": "Button primary",
+                      "height": 40,
+                      "fill": "$--primary",
+                      "cornerRadius": "$--radius-btn",
+                      "gap": 8,
+                      "padding": [
+                        10,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "bBMmC",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "plus",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--primary-foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "vYkGn",
+                          "fill": "$--primary-foreground",
+                          "content": "Create project",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "j20rgA",
+      "x": 0,
+      "y": 800,
+      "name": "Project Switcher",
+      "clip": true,
+      "width": 1280,
+      "fill": "$--surface",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "w2Aww",
+          "name": "TopNav Closed",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$--background",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "$--hairline"
+          },
+          "padding": [
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "D1GNa",
+              "name": "Nav Left",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "d7aN3",
+                  "name": "Workspace Switcher",
+                  "height": 40,
+                  "cornerRadius": "$--radius-btn",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--hairline"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "L2NQK",
+                      "fill": "$--foreground",
+                      "content": "Alice's Workspace",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "bbXyz",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "X6GRfM",
+                  "name": "Sep",
+                  "width": 1,
+                  "height": 20,
+                  "fill": "$--hairline"
+                },
+                {
+                  "type": "frame",
+                  "id": "CPB8L",
+                  "name": "Project Switcher Trigger",
+                  "height": 40,
+                  "cornerRadius": "$--radius-btn",
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "SgWFP",
+                      "fill": "$--foreground",
+                      "content": "Mobile App",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "J5vZYl",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "chevron-down",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JDdKj",
+              "name": "Avatar",
+              "width": 36,
+              "height": 36,
+              "fill": "#1a1a1a",
+              "cornerRadius": 18,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "A4cBZ1",
+                  "fill": "$--primary",
+                  "content": "A",
+                  "fontFamily": "$--font-primary",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "o5lxGj",
+          "name": "Closed Label",
+          "width": "fill_container",
+          "gap": 8,
+          "padding": [
+            12,
+            24
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "KqTcH",
+              "width": 14,
+              "height": 14,
+              "iconFontName": "info",
+              "iconFontFamily": "lucide",
+              "fill": "$--muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "dib6e",
+              "fill": "$--muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Closed state — active project name + chevron. Composes Button variant=ghost, beside the workspace switcher (workspace-left, project-immediately-right, separated by a hairline).",
+              "lineHeight": 1.4,
+              "fontFamily": "$--font-primary",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "u39dZ2",
+          "name": "Open State Region",
+          "width": "fill_container",
+          "height": 360,
+          "fill": "$--background",
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "nu4qq",
+              "x": 0,
+              "y": 0,
+              "name": "TopNav Open",
+              "width": 1280,
+              "height": 64,
+              "fill": "$--background",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--hairline"
+              },
+              "padding": [
+                0,
+                24
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "R6EYA",
+                  "name": "Nav Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UjHAV",
+                      "name": "Workspace Switcher",
+                      "height": 40,
+                      "cornerRadius": "$--radius-btn",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--hairline"
+                      },
+                      "gap": 8,
+                      "padding": [
+                        8,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "P9wid",
+                          "fill": "$--foreground",
+                          "content": "Alice's Workspace",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "icon_font",
+                          "id": "b3Z38",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "chevron-down",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--muted-foreground"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RTunN",
+                      "name": "Sep",
+                      "width": 1,
+                      "height": 20,
+                      "fill": "$--hairline"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gH2Za",
+                      "name": "Project Switcher Trigger Active",
+                      "height": 40,
+                      "fill": "$--surface",
+                      "cornerRadius": "$--radius-btn",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--primary"
+                      },
+                      "gap": 8,
+                      "padding": [
+                        8,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FFY1F",
+                          "fill": "$--foreground",
+                          "content": "Mobile App",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "icon_font",
+                          "id": "PRerm",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "chevron-down",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--muted-foreground"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Tg8VR",
+                  "name": "Avatar",
+                  "width": 36,
+                  "height": 36,
+                  "fill": "#1a1a1a",
+                  "cornerRadius": 18,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "V0Cn2C",
+                      "fill": "$--primary",
+                      "content": "A",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FCmft",
+              "x": 201,
+              "y": 72,
+              "name": "Popover",
+              "clip": true,
+              "width": 320,
+              "fill": "$--background",
+              "cornerRadius": "$--radius-card",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "$--hairline"
+              },
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0f0f0f1f",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "padding": [
+                8,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tKy02",
+                  "name": "Header",
+                  "width": "fill_container",
+                  "padding": [
+                    8,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "iJFy6",
+                      "fill": "$--muted-foreground",
+                      "content": "PROJECTS",
+                      "fontFamily": "$--font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "500",
+                      "letterSpacing": 0.8
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FtcCI",
+                  "name": "Project Row",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$--surface",
+                  "gap": 12,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "laMGM",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--primary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "T9Emn",
+                      "fill": "$--foreground",
+                      "content": "Mobile App",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ddny8",
+                  "name": "Project Row",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#00000000",
+                  "gap": 12,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "CDo66",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#00000000"
+                    },
+                    {
+                      "type": "text",
+                      "id": "p7OWx",
+                      "fill": "$--foreground",
+                      "content": "Marketing Site",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qUldq",
+                  "name": "Project Row",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#00000000",
+                  "gap": 12,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "dMVLU",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#00000000"
+                    },
+                    {
+                      "type": "text",
+                      "id": "AwGaG",
+                      "fill": "$--foreground",
+                      "content": "Internal Tools",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Tf1MS",
+                  "name": "Divider Wrap",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "joCoL",
+                      "name": "Divider",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "$--hairline"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "l5M0Kc",
+                  "name": "Create Project Entry",
+                  "width": "fill_container",
+                  "height": 44,
+                  "gap": 12,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "tWjbC",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "plus",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "G19GG",
+                      "fill": "$--foreground",
+                      "content": "Create project",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "xUCAH",
+          "name": "Open Label",
+          "width": "fill_container",
+          "gap": 8,
+          "padding": [
+            12,
+            24
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "Fv0Qq",
+              "width": 14,
+              "height": 14,
+              "iconFontName": "info",
+              "iconFontFamily": "lucide",
+              "fill": "$--muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "RIU6P",
+              "fill": "$--muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Open state — Popover anchored below the trigger, 320px wide. 'PROJECTS' header (mono caps); one row per project with a check on the active project + surface highlight; divider; 'Create project' entry (lucide Plus). Reuses the existing Popover primitive (Subtask 1.2.6).",
+              "lineHeight": 1.4,
+              "fontFamily": "$--font-primary",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "kY3CM",
+      "x": 1360,
+      "y": 800,
+      "name": "Archive Confirm",
+      "clip": true,
+      "width": 1280,
+      "height": 760,
+      "fill": "#9a9893",
+      "gap": 40,
+      "padding": 48,
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "LAvPb",
+          "name": "Col",
+          "width": 512,
+          "layout": "vertical",
+          "gap": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "heLid",
+              "name": "Modal",
+              "width": 512,
+              "fill": "$--background",
+              "cornerRadius": "$--radius-modal",
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0f0f0f29",
+                "offset": {
+                  "x": 0,
+                  "y": 16
+                },
+                "blur": 48,
+                "spread": -8
+              },
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 32,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wcGVe",
+                  "name": "Head Row",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QpcqA",
+                      "name": "Icon Circle",
+                      "width": 36,
+                      "height": 36,
+                      "fill": "$--tint-rose",
+                      "cornerRadius": 18,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "stw7c",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "triangle-alert",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--destructive"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "EKqYN",
+                      "fill": "$--foreground",
+                      "content": "Archive Mobile App?",
+                      "fontFamily": "$--font-serif",
+                      "fontSize": 24,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "gsAiM",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Archiving hides this project from the switcher and lists. Its work items and history are preserved — you can restore the project later. This does not delete any data.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-primary",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "EqlZA",
+                  "name": "Confirm Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p4KUt",
+                      "fill": "$--foreground",
+                      "content": "Type PROD to confirm",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "faraN",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 44,
+                      "fill": "$--background",
+                      "cornerRadius": "$--radius-input",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--hairline-strong"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "X6xO9",
+                          "fill": "$--muted-foreground",
+                          "content": "PROD",
+                          "fontFamily": "$--font-mono",
+                          "fontSize": 16,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DoT50",
+                  "name": "Modal.Footer",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YXLJq",
+                      "name": "Button ghost",
+                      "height": 40,
+                      "cornerRadius": "$--radius-btn",
+                      "padding": [
+                        10,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mLbkC",
+                          "fill": "$--foreground",
+                          "content": "Cancel",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L0Wli",
+                      "name": "Button danger",
+                      "opacity": 0.5,
+                      "height": 40,
+                      "fill": "$--destructive",
+                      "cornerRadius": "$--radius-btn",
+                      "padding": [
+                        10,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oFUKM",
+                          "fill": "$--destructive-foreground",
+                          "content": "Archive project",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "auiem",
+              "fill": "$--muted-foreground",
+              "content": "Disabled (input empty)",
+              "fontFamily": "$--font-mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XsQ6X",
+          "name": "Col",
+          "width": 512,
+          "layout": "vertical",
+          "gap": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "HjmPF",
+              "name": "Modal",
+              "width": 512,
+              "fill": "$--background",
+              "cornerRadius": "$--radius-modal",
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0f0f0f29",
+                "offset": {
+                  "x": 0,
+                  "y": 16
+                },
+                "blur": 48,
+                "spread": -8
+              },
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 32,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "w6nfU",
+                  "name": "Head Row",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "f5u0R9",
+                      "name": "Icon Circle",
+                      "width": 36,
+                      "height": 36,
+                      "fill": "$--tint-rose",
+                      "cornerRadius": 18,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "KOzwa",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "triangle-alert",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--destructive"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "o9OdI",
+                      "fill": "$--foreground",
+                      "content": "Archive Mobile App?",
+                      "fontFamily": "$--font-serif",
+                      "fontSize": 24,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "B0nW4v",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Archiving hides this project from the switcher and lists. Its work items and history are preserved — you can restore the project later. This does not delete any data.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$--font-primary",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "x308i",
+                  "name": "Confirm Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MQBdr",
+                      "fill": "$--foreground",
+                      "content": "Type PROD to confirm",
+                      "fontFamily": "$--font-primary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bYUx2",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 44,
+                      "fill": "$--background",
+                      "cornerRadius": "$--radius-input",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "$--primary"
+                      },
+                      "padding": [
+                        12,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bcuXE",
+                          "fill": "$--foreground",
+                          "content": "PROD",
+                          "fontFamily": "$--font-mono",
+                          "fontSize": 16,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "u7g4rv",
+                  "name": "Modal.Footer",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VaCGa",
+                      "name": "Button ghost",
+                      "height": 40,
+                      "cornerRadius": "$--radius-btn",
+                      "padding": [
+                        10,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PCfpN",
+                          "fill": "$--foreground",
+                          "content": "Cancel",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "y8BJBx",
+                      "name": "Button danger",
+                      "height": 40,
+                      "fill": "$--destructive",
+                      "cornerRadius": "$--radius-btn",
+                      "padding": [
+                        10,
+                        18
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "QxOiu",
+                          "fill": "$--destructive-foreground",
+                          "content": "Archive project",
+                          "fontFamily": "$--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "w7n8gU",
+              "fill": "$--muted-foreground",
+              "content": "Armed (input matches)",
+              "fontFamily": "$--font-mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "themes": {
+    "mode": [
+      "light",
+      "dark"
+    ]
+  },
+  "variables": {
+    "--background": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#ffffff",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#0f0f0f",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--destructive": {
+      "type": "color",
+      "value": "#e03131"
+    },
+    "--destructive-foreground": {
+      "type": "color",
+      "value": "#ffffff"
+    },
+    "--font-mono": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "--font-primary": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "--font-serif": {
+      "type": "string",
+      "value": "Source Serif 4"
+    },
+    "--foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#1a1a1a",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#f3f4f6",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--hairline": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#e5e3df",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#2a2a2a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--hairline-strong": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#c8c4be",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#3a3a3a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--muted-foreground": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#787671",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#a4a097",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#5645d4",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#7b6ce5",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--primary-foreground": {
+      "type": "color",
+      "value": "#ffffff"
+    },
+    "--radius-btn": {
+      "type": "number",
+      "value": 8
+    },
+    "--radius-card": {
+      "type": "number",
+      "value": 12
+    },
+    "--radius-input": {
+      "type": "number",
+      "value": 8
+    },
+    "--radius-modal": {
+      "type": "number",
+      "value": 12
+    },
+    "--surface": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#f6f5f4",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#1a1a1a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "--tint-rose": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#fde0ec",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#3a1f2a",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    }
+  }
+}
