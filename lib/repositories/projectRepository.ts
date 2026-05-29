@@ -8,8 +8,17 @@ import { ProjectNotFoundError } from '@/lib/projects/errors';
 // mapping, no transactions here — those belong in projectsService.
 
 export const projectRepository = {
-  async findById(id: string): Promise<Project | null> {
-    return db.project.findUnique({ where: { id } });
+  /**
+   * Read a project by id. Optionally takes `tx` when the caller is already
+   * inside a transaction — required when running under the non-bypass
+   * prodect_app role with the project RLS policy in force, because the
+   * policy keys on the per-transaction `app.workspace_id` GUC that
+   * withWorkspaceContext binds. Outside withWorkspaceContext the policy
+   * sees NULL and hides every row under the non-bypass role.
+   */
+  async findById(id: string, tx?: Prisma.TransactionClient): Promise<Project | null> {
+    const client = tx ?? db;
+    return client.project.findUnique({ where: { id } });
   },
 
   async findBySlug(workspaceId: string, slug: string): Promise<Project | null> {
@@ -20,10 +29,15 @@ export const projectRepository = {
 
   /**
    * Non-archived projects in a workspace, ordered by createdAt asc so the
-   * first-created project lands first in any list surface.
+   * first-created project lands first in any list surface. Optionally takes
+   * `tx` so the read happens inside withWorkspaceContext when the caller
+   * needs the project RLS policy to see the workspace GUC (production
+   * non-bypass role); outside a tx this falls back to the `db` singleton,
+   * which is fine for the BYPASSRLS dev/CI role.
    */
-  async findByWorkspace(workspaceId: string): Promise<Project[]> {
-    return db.project.findMany({
+  async findByWorkspace(workspaceId: string, tx?: Prisma.TransactionClient): Promise<Project[]> {
+    const client = tx ?? db;
+    return client.project.findMany({
       where: { workspaceId, archivedAt: null },
       orderBy: { createdAt: 'asc' },
     });
