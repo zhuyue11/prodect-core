@@ -118,6 +118,25 @@ export const workspaceMembershipRepository = {
   },
 
   /**
+   * Set (or clear, with null) the member's active project. Targets the row
+   * by the (userId, workspaceId) unique so a member's active project is
+   * scoped to the workspace it lives in. The service asserts membership and
+   * that the project belongs to the workspace before calling this; the FK's
+   * onDelete: SetNull is the structural backstop if the project later goes.
+   */
+  async setActiveProject(
+    userId: string,
+    workspaceId: string,
+    projectId: string | null,
+    tx: Prisma.TransactionClient,
+  ): Promise<WorkspaceMembership> {
+    return tx.workspaceMembership.update({
+      where: { userId_workspaceId: { userId, workspaceId } },
+      data: { activeProjectId: projectId },
+    });
+  },
+
+  /**
    * Returns the deleted membership row, or null if no matching row
    * existed (treats "already gone" as a no-op rather than an error —
    * the Leave / Remove flows in the settings UI rely on this).
