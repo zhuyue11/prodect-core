@@ -1,7 +1,7 @@
 import { Prisma, type Project } from '@prisma/client';
-import { db } from '@/lib/db';
 import { projectRepository } from '@/lib/repositories/projectRepository';
 import { workspaceMembershipRepository } from '@/lib/repositories/workspaceMembershipRepository';
+import { withWorkspaceContext } from '@/lib/workspaces/context';
 import { NotAMemberError } from '@/lib/workspaces/errors';
 import {
   IdentifierCollisionError,
@@ -16,9 +16,19 @@ import type { ProjectDTO } from '@/lib/dto/projects';
 // collision-retry, and DTO mapping. Mirrors workspacesService: each retry
 // opens a FRESH transaction because a P2002 poisons the current one.
 //
-// getActiveProject + RLS land in Subtask 1.3.2 — NOT built here. The
-// service is structured (assertMembership helper, setActiveProject already
-// present) so 1.3.2 can add the getter cleanly.
+// Subtask 1.3.2 adds:
+//   * getActiveProject(userId, workspaceId) — resolves the member's
+//     activeProjectId, falls back to the workspace's first non-archived
+//     project, returns a DTO or null.
+//   * RLS-aware writes — every project-scoped write (create/rename/archive/
+//     setActiveProject/list) now runs inside withWorkspaceContext so the
+//     project RLS policy added in 20260529202445_add_project_rls permits
+//     the operation under the non-bypass prodect_app role. The membership
+//     assertion stays as the application-layer gate (defense in depth: the
+//     assertion gives a typed NotAMemberError, the RLS policy is the
+//     structural backstop). Under the dev/CI superuser role (BYPASSRLS) the
+//     withWorkspaceContext wrapper is a behavioral no-op, so the existing
+//     1.3.1 counter test stays green without modification.
 
 // ── Identifier derivation rule ──────────────────────────────────────────
 // The identifier is a 3-5 char, uppercase, workspace-unique handle that
@@ -85,17 +95,6 @@ function isUniqueViolation(err: unknown): err is Prisma.PrismaClientKnownRequest
   return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002';
 }
 
-// Which field collided, from the P2002 meta.target. The unique indexes are
-// (workspaceId, slug) and (workspaceId, identifier); Prisma reports the
-// target field list so we can re-suffix only the colliding one.
-function collisionField(err: Prisma.PrismaClientKnownRequestError): 'slug' | 'identifier' | null {
-  const target = err.meta?.target;
-  const fields = Array.isArray(target) ? target.map(String) : [String(target ?? '')];
-  if (fields.some((f) => f.includes('identifier'))) return 'identifier';
-  if (fields.some((f) => f.includes('slug'))) return 'slug';
-  return null;
-}
-
 export interface CreateProjectInput {
   workspaceId: string;
   actorUserId: string;
@@ -108,11 +107,20 @@ export const projectsService = {
    * Create a project in a workspace. Asserts the actor is a member, derives
    * a workspace-unique 3-5-char uppercase identifier + a slug from the name
    * (or normalizes a caller-supplied identifier), and inserts in one
-   * transaction. On a unique-violation we re-suffix ONLY the colliding
-   * field (identifier or slug) and retry in a FRESH transaction — a P2002
-   * poisons the current one, so we can't catch-and-continue inside a single
-   * `tx`. After RETRY_ATTEMPTS we throw IdentifierCollisionError. Returns a
-   * DTO, never a raw Prisma row.
+   * transaction. On a unique-violation we re-suffix BOTH fields and retry
+   * in a FRESH transaction — a P2002 poisons the current one, so we can't
+   * catch-and-continue inside a single `tx`. After RETRY_ATTEMPTS we throw
+   * IdentifierCollisionError. Returns a DTO, never a raw Prisma row.
+   *
+   * Why re-suffix BOTH fields on every retry rather than just the colliding
+   * one: Prisma 7's `P2002.meta.target` is `undefined` against Postgres 16
+   * on the project table (PRODECT_FINDINGS #15), so we can't reliably tell
+   * which unique index fired. Unconditionally advancing both is the
+   * durable correctness fix — identifier monotonicity is preserved by the
+   * `attempt + 1` numeric suffix; slug gets a fresh random suffix per
+   * retry. Trade-off: a slug-only collision wastes one identifier suffix
+   * value (PROD → PROD1) even though PROD was actually fine. Acceptable —
+   * identifier suffixes are cheap and human-readable.
    */
   async createProject(input: CreateProjectInput): Promise<ProjectDTO> {
     await projectsService.assertMembership(input.actorUserId, input.workspaceId);
@@ -130,23 +138,25 @@ export const projectsService = {
     for (let attempt = 0; attempt < RETRY_ATTEMPTS; attempt++) {
       lastIdentifier = identifier;
       try {
-        const project = await db.$transaction((tx) =>
-          projectRepository.create(
-            { workspaceId: input.workspaceId, name: trimmedName, slug, identifier },
-            tx,
-          ),
+        // The INSERT must happen INSIDE withWorkspaceContext so the project
+        // RLS policy's WITH CHECK passes (it requires the new row's
+        // workspaceId to equal the active-workspace GUC). Each retry opens
+        // a FRESH withWorkspaceContext transaction — a P2002 poisons the
+        // current one, so we can't catch-and-continue inside a single tx.
+        const project = await withWorkspaceContext(
+          { userId: input.actorUserId, workspaceId: input.workspaceId },
+          (tx) =>
+            projectRepository.create(
+              { workspaceId: input.workspaceId, name: trimmedName, slug, identifier },
+              tx,
+            ),
         );
         return toProjectDTO(project);
       } catch (err) {
         if (isUniqueViolation(err)) {
-          const field = collisionField(err);
-          if (field === 'slug') {
-            slug = `${slugBase}-${randomSlugSuffix()}`;
-          } else {
-            // identifier collision (or an unattributable P2002 on the
-            // project's unique indexes) → bump the numeric suffix.
-            identifier = identifierWithSuffix(identifierBase, attempt + 1);
-          }
+          // Unconditional re-suffix of BOTH fields — see method docstring.
+          identifier = identifierWithSuffix(identifierBase, attempt + 1);
+          slug = `${slugBase}-${randomSlugSuffix()}`;
           continue;
         }
         throw err;
@@ -167,10 +177,17 @@ export const projectsService = {
     name: string;
   }): Promise<ProjectDTO> {
     await projectsService.assertMembership(input.actorUserId, input.workspaceId);
-    await projectsService.assertProjectInWorkspace(input.projectId, input.workspaceId);
     const trimmed = input.name.trim();
-    const project = await db.$transaction((tx) =>
-      projectRepository.update(input.projectId, { name: trimmed }, tx),
+    // The cross-workspace guard (assertProjectInWorkspace) and the UPDATE
+    // both run inside withWorkspaceContext so (a) the project RLS policy
+    // exposes the row to the read under prodect_app, and (b) the UPDATE's
+    // WITH CHECK predicate is satisfied by the same workspace GUC.
+    const project = await withWorkspaceContext(
+      { userId: input.actorUserId, workspaceId: input.workspaceId },
+      async (tx) => {
+        await projectsService.assertProjectInWorkspaceInTx(input.projectId, input.workspaceId, tx);
+        return projectRepository.update(input.projectId, { name: trimmed }, tx);
+      },
     );
     return toProjectDTO(project);
   },
@@ -186,8 +203,13 @@ export const projectsService = {
     actorUserId: string;
   }): Promise<void> {
     await projectsService.assertMembership(input.actorUserId, input.workspaceId);
-    await projectsService.assertProjectInWorkspace(input.projectId, input.workspaceId);
-    await db.$transaction((tx) => projectRepository.archive(input.projectId, tx));
+    await withWorkspaceContext(
+      { userId: input.actorUserId, workspaceId: input.workspaceId },
+      async (tx) => {
+        await projectsService.assertProjectInWorkspaceInTx(input.projectId, input.workspaceId, tx);
+        return projectRepository.archive(input.projectId, tx);
+      },
+    );
   },
 
   /**
@@ -197,7 +219,9 @@ export const projectsService = {
    */
   async listProjects(workspaceId: string, actorUserId: string): Promise<ProjectDTO[]> {
     await projectsService.assertMembership(actorUserId, workspaceId);
-    const projects = await projectRepository.findByWorkspace(workspaceId);
+    const projects = await withWorkspaceContext({ userId: actorUserId, workspaceId }, (tx) =>
+      projectRepository.findByWorkspace(workspaceId, tx),
+    );
     return projects.map(toProjectDTO);
   },
 
@@ -212,16 +236,23 @@ export const projectsService = {
     projectId: string | null;
   }): Promise<void> {
     await projectsService.assertMembership(input.userId, input.workspaceId);
-    if (input.projectId !== null) {
-      await projectsService.assertProjectInWorkspace(input.projectId, input.workspaceId);
-    }
-    await db.$transaction((tx) =>
-      workspaceMembershipRepository.setActiveProject(
-        input.userId,
-        input.workspaceId,
-        input.projectId,
-        tx,
-      ),
+    await withWorkspaceContext(
+      { userId: input.userId, workspaceId: input.workspaceId },
+      async (tx) => {
+        if (input.projectId !== null) {
+          await projectsService.assertProjectInWorkspaceInTx(
+            input.projectId,
+            input.workspaceId,
+            tx,
+          );
+        }
+        return workspaceMembershipRepository.setActiveProject(
+          input.userId,
+          input.workspaceId,
+          input.projectId,
+          tx,
+        );
+      },
     );
   },
 
@@ -239,7 +270,8 @@ export const projectsService = {
    * Asserts the project exists and belongs to the given workspace. Guards
    * cross-workspace writes (a member of workspace A can't rename/archive a
    * project that lives in workspace B). Returns the Project for callers
-   * that want it.
+   * that want it. Uses the `db` singleton — only safe under the BYPASSRLS
+   * dev role; the in-tx variant below is what production code paths use.
    */
   async assertProjectInWorkspace(projectId: string, workspaceId: string): Promise<Project> {
     const project = await projectRepository.findById(projectId);
@@ -248,5 +280,89 @@ export const projectsService = {
       throw new ProjectWorkspaceMismatchError(projectId, workspaceId);
     }
     return project;
+  },
+
+  /**
+   * In-transaction variant of assertProjectInWorkspace. Production-correct:
+   * the read happens through the supplied `tx`, so under the non-bypass
+   * prodect_app role the project RLS policy gates the row using the same
+   * workspace GUC bound by the enclosing withWorkspaceContext. (The
+   * non-tx variant above queries via `db` and would return NULL on an
+   * RLS-enabled connection without the GUC — only the BYPASSRLS dev role
+   * makes it work.)
+   */
+  async assertProjectInWorkspaceInTx(
+    projectId: string,
+    workspaceId: string,
+    tx: Prisma.TransactionClient,
+  ): Promise<Project> {
+    const project = await projectRepository.findById(projectId, tx);
+    if (!project) throw new ProjectNotFoundError(projectId);
+    if (project.workspaceId !== workspaceId) {
+      throw new ProjectWorkspaceMismatchError(projectId, workspaceId);
+    }
+    return project;
+  },
+
+  /**
+   * Resolve the user's active project within a workspace. Returns a
+   * ProjectDTO (or null when no resolvable project exists). Resolution
+   * order:
+   *
+   *   1. The membership row's `activeProjectId` pointer — IF it's still
+   *      set, IF the project still exists, and IF it still belongs to the
+   *      workspace (defensive: the FK's `onDelete: SetNull` already nulls
+   *      the pointer on hard-delete, but we re-check to handle a stale
+   *      pointer to an archived project from a future surface that
+   *      archives without clearing).
+   *   2. The workspace's first non-archived project by createdAt asc — the
+   *      same ordering as the projects list, so "active by default" is the
+   *      project at the top of the switcher.
+   *   3. null — workspaces with no projects yet (a fresh workspace before
+   *      the user has created anything).
+   *
+   * Reads run inside withWorkspaceContext so the project RLS policy
+   * exposes rows under the non-bypass prodect_app role; under the dev
+   * BYPASSRLS role the wrapper is a behavioral no-op. The membership
+   * read uses the `db` singleton because the workspace_membership policy
+   * already exposes the user's own rows via its `OR userId =
+   * current_setting('app.user_id', true)` branch, but for consistency we
+   * thread it through the same withWorkspaceContext transaction so the
+   * resolver is a single round-trip pair.
+   */
+  async getActiveProject(userId: string, workspaceId: string): Promise<ProjectDTO | null> {
+    // The membership read can stay outside the workspace-scoped tx (the
+    // membership RLS policy has an own-rows branch keyed on app.user_id
+    // alone), but doing it inside keeps the resolver atomic: the pointer
+    // and the project it names are read in the same snapshot, so a
+    // concurrent setActiveProject can't shear the result.
+    return withWorkspaceContext({ userId, workspaceId }, async (tx) => {
+      const membership = await workspaceMembershipRepository.findByUserAndWorkspaceWithWorkspace(
+        userId,
+        workspaceId,
+        tx,
+      );
+      if (!membership) return null;
+
+      if (membership.activeProjectId) {
+        const pinned = await projectRepository.findById(membership.activeProjectId, tx);
+        // Defensive: the FK's onDelete: SetNull means a hard-deleted
+        // project nulls the pointer, but a stale pointer to a project
+        // in a different workspace (shouldn't be possible under RLS,
+        // but belt + suspenders) or to an archived project still
+        // resolves to a valid row. Per spec we accept archived projects
+        // as the active pointer — archiving is a soft delete that
+        // preserves history; surfacing the archive as the active
+        // project would surprise the UI, so we only accept a non-
+        // archived project as a valid pinned active.
+        if (pinned && pinned.workspaceId === workspaceId && pinned.archivedAt === null) {
+          return toProjectDTO(pinned);
+        }
+      }
+
+      const projects = await projectRepository.findByWorkspace(workspaceId, tx);
+      const first = projects[0];
+      return first ? toProjectDTO(first) : null;
+    });
   },
 };
