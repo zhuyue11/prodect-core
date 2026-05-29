@@ -95,17 +95,6 @@ function isUniqueViolation(err: unknown): err is Prisma.PrismaClientKnownRequest
   return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002';
 }
 
-// Which field collided, from the P2002 meta.target. The unique indexes are
-// (workspaceId, slug) and (workspaceId, identifier); Prisma reports the
-// target field list so we can re-suffix only the colliding one.
-function collisionField(err: Prisma.PrismaClientKnownRequestError): 'slug' | 'identifier' | null {
-  const target = err.meta?.target;
-  const fields = Array.isArray(target) ? target.map(String) : [String(target ?? '')];
-  if (fields.some((f) => f.includes('identifier'))) return 'identifier';
-  if (fields.some((f) => f.includes('slug'))) return 'slug';
-  return null;
-}
-
 export interface CreateProjectInput {
   workspaceId: string;
   actorUserId: string;
@@ -118,11 +107,20 @@ export const projectsService = {
    * Create a project in a workspace. Asserts the actor is a member, derives
    * a workspace-unique 3-5-char uppercase identifier + a slug from the name
    * (or normalizes a caller-supplied identifier), and inserts in one
-   * transaction. On a unique-violation we re-suffix ONLY the colliding
-   * field (identifier or slug) and retry in a FRESH transaction — a P2002
-   * poisons the current one, so we can't catch-and-continue inside a single
-   * `tx`. After RETRY_ATTEMPTS we throw IdentifierCollisionError. Returns a
-   * DTO, never a raw Prisma row.
+   * transaction. On a unique-violation we re-suffix BOTH fields and retry
+   * in a FRESH transaction — a P2002 poisons the current one, so we can't
+   * catch-and-continue inside a single `tx`. After RETRY_ATTEMPTS we throw
+   * IdentifierCollisionError. Returns a DTO, never a raw Prisma row.
+   *
+   * Why re-suffix BOTH fields on every retry rather than just the colliding
+   * one: Prisma 7's `P2002.meta.target` is `undefined` against Postgres 16
+   * on the project table (PRODECT_FINDINGS #15), so we can't reliably tell
+   * which unique index fired. Unconditionally advancing both is the
+   * durable correctness fix — identifier monotonicity is preserved by the
+   * `attempt + 1` numeric suffix; slug gets a fresh random suffix per
+   * retry. Trade-off: a slug-only collision wastes one identifier suffix
+   * value (PROD → PROD1) even though PROD was actually fine. Acceptable —
+   * identifier suffixes are cheap and human-readable.
    */
   async createProject(input: CreateProjectInput): Promise<ProjectDTO> {
     await projectsService.assertMembership(input.actorUserId, input.workspaceId);
@@ -156,14 +154,9 @@ export const projectsService = {
         return toProjectDTO(project);
       } catch (err) {
         if (isUniqueViolation(err)) {
-          const field = collisionField(err);
-          if (field === 'slug') {
-            slug = `${slugBase}-${randomSlugSuffix()}`;
-          } else {
-            // identifier collision (or an unattributable P2002 on the
-            // project's unique indexes) → bump the numeric suffix.
-            identifier = identifierWithSuffix(identifierBase, attempt + 1);
-          }
+          // Unconditional re-suffix of BOTH fields — see method docstring.
+          identifier = identifierWithSuffix(identifierBase, attempt + 1);
+          slug = `${slugBase}-${randomSlugSuffix()}`;
           continue;
         }
         throw err;
