@@ -7,8 +7,8 @@ import type { WorkItemDto, WorkItemSummaryDto } from '@/lib/dto/workItems';
 // of lib/mappers/projectMappers.ts.
 
 /**
- * Full detail-view DTO. `position` (Prisma Decimal) and the nullable dates are
- * normalized to wire-safe strings here.
+ * Full detail-view DTO. The nullable dates are normalized to wire-safe ISO
+ * strings here; `position` is already a fractional-index string on the row.
  */
 export function toWorkItemDto(row: WorkItem): WorkItemDto {
   return {
@@ -28,7 +28,7 @@ export function toWorkItemDto(row: WorkItem): WorkItemDto {
     reporterId: row.reporterId,
     dueDate: row.dueDate ? row.dueDate.toISOString() : null,
     estimateMinutes: row.estimateMinutes,
-    position: row.position.toString(),
+    position: row.position,
     archivedAt: row.archivedAt ? row.archivedAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
@@ -50,7 +50,7 @@ export function toWorkItemSummaryDto(row: WorkItem): WorkItemSummaryDto {
     status: row.status,
     priority: row.priority,
     assigneeId: row.assigneeId,
-    position: row.position.toString(),
+    position: row.position,
     archivedAt: row.archivedAt ? row.archivedAt.toISOString() : null,
   };
 }

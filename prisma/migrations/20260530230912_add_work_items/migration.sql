@@ -26,7 +26,7 @@ CREATE TABLE "work_item" (
     "reporterId" TEXT NOT NULL,
     "dueDate" TIMESTAMP(3),
     "estimateMinutes" INTEGER,
-    "position" DECIMAL(20,10) NOT NULL,
+    "position" TEXT NOT NULL,
     "archivedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

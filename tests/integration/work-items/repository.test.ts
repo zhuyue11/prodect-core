@@ -66,9 +66,10 @@ async function makeFixture() {
 /**
  * Create a work item the way the service (1.4.4) will: allocate the per-
  * project key inside the transaction, derive the identifier, and create the
- * row — all through the repository. `position` is a plain numeric Decimal
- * here (see the positioning-vs-Decimal finding in the PR); ordering semantics
- * are out of scope for these structural-trigger tests.
+ * row — all through the repository. `position` is a fractional-index string
+ * column; these structural-trigger tests don't assert ordering, so we use a
+ * zero-padded key string (lexicographically stable) rather than minting real
+ * fractional keys.
  */
 async function createWorkItem(
   fx: Awaited<ReturnType<typeof makeFixture>>,
@@ -86,7 +87,7 @@ async function createWorkItem(
         identifier: `${fx.project.identifier}-${key}`,
         title: input.title,
         reporterId: fx.owner.id,
-        position: key,
+        position: String(key).padStart(6, '0'),
       },
       tx,
     );

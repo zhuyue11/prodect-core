@@ -278,7 +278,7 @@ model WorkItem {
   reporterId        String
   dueDate           DateTime?
   estimateMinutes   Int?
-  position          Decimal                   @db.Decimal(20, 10)
+  position          String                    @db.Text
   archivedAt        DateTime?
   createdAt         DateTime                  @default(now())
   updatedAt         DateTime                  @updatedAt

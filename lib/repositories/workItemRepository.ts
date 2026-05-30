@@ -24,9 +24,10 @@ import {
 
 /**
  * A row of `findSubtree`'s recursive-CTE result: the work item plus its
- * `depth` (1 = the root passed in, 2 = its children, …). Decimal/enum columns
- * come back from `$queryRaw` as plain strings (cast in the query), so this is
- * intentionally NOT a `WorkItem` — it's the raw tree-walk projection.
+ * `depth` (1 = the root passed in, 2 = its children, …). `kind` is cast to
+ * text in the query (the enum would otherwise come back as a Prisma enum);
+ * `position` is already a text column. This is intentionally NOT a `WorkItem`
+ * — it's the raw tree-walk projection.
  */
 export interface WorkItemSubtreeRow {
   id: string;
@@ -94,8 +95,8 @@ export const workItemRepository = {
    * The full subtree rooted at `rootId`, in ONE round-trip via a recursive
    * CTE. Returns each row with its `depth` (root = 1), ordered depth-first by
    * position so the result reads as a pre-order tree walk. Identifiers are
-   * double-quoted because the columns are camelCase; `kind`/`position` are
-   * cast to text so `$queryRaw` returns plain strings.
+   * double-quoted because the columns are camelCase; `kind` is cast to text so
+   * `$queryRaw` returns the plain enum label.
    */
   async findSubtree(rootId: string, tx?: Prisma.TransactionClient): Promise<WorkItemSubtreeRow[]> {
     const client = tx ?? db;
@@ -118,8 +119,8 @@ export const workItemRepository = {
              "identifier",
              "title",
              "status",
-             "position"::text   AS "position",
-             depth::int         AS "depth"
+             "position",
+             depth::int AS "depth"
         FROM subtree
         ORDER BY depth ASC, "position" ASC`;
   },
