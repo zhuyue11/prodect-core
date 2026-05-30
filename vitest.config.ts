@@ -19,14 +19,17 @@ process.env['GOOGLE_CLIENT_ID'] ??= 'test-google-client-id';
 process.env['GOOGLE_CLIENT_SECRET'] ??= 'test-google-client-secret';
 process.env['BETTER_AUTH_SECRET'] ??= 'test-better-auth-secret-32-bytes-long-please';
 
-// Vitest is configured for Node integration tests against a real Postgres.
-// Browser-style component tests (jsdom/happy-dom) aren't needed yet; if
-// they arrive in Story 1.1.5 (sign-in pages) or later, split this into
-// `vitest.workspace.ts` rather than dual-mode a single config.
+// Vitest defaults to the Node environment for integration tests against a
+// real Postgres. The first browser-style component test arrived in Story 1.4
+// (the Markdown render smoke test): it opts into happy-dom per-file via a
+// `// @vitest-environment happy-dom` directive at the top of the file, so the
+// global default stays `node` and the DB-backed suites are unaffected. If
+// component tests proliferate, split this into `vitest.workspace.ts` rather
+// than dual-moding here.
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
     // DB-backed tests share connections to the local Postgres; running
     // them in parallel forks would cause cross-test row interference.
     // Serial is fine — total suite is small.

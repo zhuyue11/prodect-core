@@ -64,6 +64,13 @@ model User {
   accounts             Account[]
   sessions             Session[]
   workspaceMemberships WorkspaceMembership[]
+  // Back-relations for WorkItem (Story 1.4). A user reports many work items
+  // (reporter — Restrict on the FK: a user with reported issues on record
+  // cannot be hard-deleted) and can be assigned many (assignee — SetNull on
+  // the FK: deleting an assignee leaves the issue unassigned, never removes
+  // it). Named relations because there are two distinct User↔WorkItem edges.
+  reportedWorkItems    WorkItem[]            @relation("WorkItemReporter")
+  assignedWorkItems    WorkItem[]            @relation("WorkItemAssignee")
 
   @@map("user")
 }
@@ -145,6 +152,7 @@ model Workspace {
 
   memberships WorkspaceMembership[]
   projects    Project[]
+  workItems   WorkItem[]
 
   @@map("workspace")
 }
@@ -176,6 +184,7 @@ model Project {
   // ONE relation between Project and WorkspaceMembership (the active-project
   // pointer), and both sides carry the same @relation("ActiveProject") name.
   members   WorkspaceMembership[] @relation("ActiveProject")
+  workItems WorkItem[]
 
   @@unique([workspaceId, slug])
   @@unique([workspaceId, identifier])
@@ -222,4 +231,98 @@ enum SubtaskPrMergeMode {
   review_on_fail
 
   @@map("subtask_pr_merge_mode")
+}
+
+/// The unit of tracked work in Prodect's PM core (Story 1.4). Every epic,
+/// story, task, bug, and subtask a team plans is a row here. Self-referencing
+/// tree via `parentId`, with the kind-parent matrix, the 4-level depth limit,
+/// and cycle prevention all enforced at the DB layer by PL/pgSQL triggers
+/// (see prisma/sql/work_item_triggers.sql, applied in the add_work_items
+/// migration). Those triggers — NOT a Prisma-level check — are the source of
+/// truth for structural integrity; the repository translates their SQLSTATE
+/// 23514 message markers into typed errors at its edge.
+///
+/// Two distinct user-visible content axes, both Markdown source rendered as
+/// GFM (see lib/markdown/render.tsx):
+///   - descriptionMd  — "what to do" (the actionable spec).
+///   - explanationMd  — "why this matters" (the context a non-technical
+///                       reviewer needs). Mostly AI-drafted in steady state,
+///                       but the column is just text + a provenance enum; the
+///                       closed-source AI logic lives in prodect-ai. The
+///                       GPL boundary stays clean — this table can't tell an
+///                       AI-drafted value from a hand-typed one except via
+///                       `explanationSource`.
+///
+/// `key` is the per-project monotonic number allocated via
+/// projectRepository.allocateWorkItemNumber (Story 1.3.1); `identifier`
+/// ("PROD-42") is the denormalized `project.identifier + "-" + key` kept on
+/// the row for index/search efficiency. `position` is a fractional index
+/// (lib/workItems/positioning.ts) so reorders are O(1) writes. Soft-delete
+/// only via `archivedAt` — work-item history must survive (the Project
+/// pattern). RLS on this table lands in Subtask 1.4.5, not here.
+model WorkItem {
+  id                String                    @id @default(cuid())
+  workspaceId       String
+  projectId         String
+  parentId          String?
+  kind              WorkItemKind
+  key               Int
+  identifier        String // "PROD-42" — denormalized from project.identifier + key for search/index efficiency
+  title             String
+  descriptionMd     String?                   @db.Text // "what to do" — Markdown source
+  explanationMd     String?                   @db.Text // "why this matters" — distinct from description; mostly AI-drafted, user-owned
+  explanationSource WorkItemExplanationSource @default(user_authored)
+  status            String                    @default("open")
+  priority          WorkItemPriority          @default(medium)
+  assigneeId        String?
+  reporterId        String
+  dueDate           DateTime?
+  estimateMinutes   Int?
+  position          Decimal                   @db.Decimal(20, 10)
+  archivedAt        DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent    WorkItem?  @relation("WorkItemParent", fields: [parentId], references: [id], onDelete: NoAction)
+  children  WorkItem[] @relation("WorkItemParent")
+  assignee  User?      @relation("WorkItemAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporter  User       @relation("WorkItemReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, key])
+  @@unique([projectId, identifier])
+  @@index([projectId, parentId, position])
+  @@index([projectId, status])
+  @@index([projectId, assigneeId])
+  @@index([workspaceId])
+  @@map("work_item")
+}
+
+enum WorkItemKind {
+  epic
+  story
+  task
+  bug
+  subtask
+
+  @@map("work_item_kind")
+}
+
+enum WorkItemPriority {
+  lowest
+  low
+  medium
+  high
+  highest
+
+  @@map("work_item_priority")
+}
+
+enum WorkItemExplanationSource {
+  user_authored
+  ai_draft
+  user_edited
+
+  @@map("work_item_explanation_source")
 }

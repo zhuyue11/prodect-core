@@ -1,0 +1,236 @@
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { PrismaClient, Prisma, type WorkItem, type WorkItemKind } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { db } from '@/lib/db';
+import { projectRepository } from '@/lib/repositories/projectRepository';
+import { workItemRepository } from '@/lib/repositories/workItemRepository';
+import { usersService } from '@/lib/services/usersService';
+import { workspacesService } from '@/lib/services/workspacesService';
+import { projectsService } from '@/lib/services/projectsService';
+import {
+  DepthLimitExceededError,
+  IllegalParentTypeError,
+  ParentCycleError,
+} from '@/lib/workItems/errors';
+import { truncateAuthTables } from '../../helpers/db';
+
+// Integration tests for workItemRepository against a REAL Postgres (Yue's
+// no-mocks rule). These exercise the DB-layer triggers through the repository
+// edge: the kind-parent matrix, the depth limit, cycle prevention, the
+// single-round-trip recursive-CTE subtree read, and identifier lookup.
+//
+// The triggers truncate with the auth tables: TRUNCATE ... CASCADE on
+// workspace/user carries work_item with it (it FKs both). We add an explicit
+// work_item truncate first for intent + resilience if that cascade ever
+// changes.
+
+const PASSWORD = 'hunter2hunter2';
+
+async function truncateAll(): Promise<void> {
+  await db.$executeRawUnsafe('TRUNCATE TABLE "work_item" RESTART IDENTITY CASCADE');
+  await truncateAuthTables();
+}
+
+beforeEach(async () => {
+  await truncateAll();
+});
+
+afterAll(async () => {
+  await db.$disconnect();
+});
+
+/**
+ * Workspace + project + owner fixture. The project identifier is forced to
+ * "PROD" so work-item identifiers read as PROD-1, PROD-2, … (the
+ * findByIdentifier test asserts on "PROD-1").
+ */
+async function makeFixture() {
+  const owner = await usersService.createUser({
+    email: `owner+${Math.random().toString(36).slice(2)}@example.com`,
+    password: PASSWORD,
+    name: 'Owner',
+  });
+  const { workspace } = await workspacesService.createWorkspace({
+    name: 'Acme',
+    ownerUserId: owner.id,
+  });
+  const project = await projectsService.createProject({
+    workspaceId: workspace.id,
+    actorUserId: owner.id,
+    name: 'Prodect',
+    identifier: 'PROD',
+  });
+  return { owner, workspace, project };
+}
+
+/**
+ * Create a work item the way the service (1.4.4) will: allocate the per-
+ * project key inside the transaction, derive the identifier, and create the
+ * row — all through the repository. `position` is a plain numeric Decimal
+ * here (see the positioning-vs-Decimal finding in the PR); ordering semantics
+ * are out of scope for these structural-trigger tests.
+ */
+async function createWorkItem(
+  fx: Awaited<ReturnType<typeof makeFixture>>,
+  input: { kind: WorkItemKind; title: string; parentId?: string | null },
+): Promise<WorkItem> {
+  return db.$transaction(async (tx) => {
+    const key = await projectRepository.allocateWorkItemNumber(fx.project.id, tx);
+    return workItemRepository.create(
+      {
+        workspaceId: fx.workspace.id,
+        projectId: fx.project.id,
+        parentId: input.parentId ?? null,
+        kind: input.kind,
+        key,
+        identifier: `${fx.project.identifier}-${key}`,
+        title: input.title,
+        reporterId: fx.owner.id,
+        position: key,
+      },
+      tx,
+    );
+  });
+}
+
+describe('workItemRepository.create — happy paths', () => {
+  it('persists a top-level epic and returns it', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'Foundation' });
+
+    expect(epic.id).toBeTruthy();
+    expect(epic.kind).toBe('epic');
+    expect(epic.parentId).toBeNull();
+    expect(epic.key).toBe(1);
+    expect(epic.identifier).toBe('PROD-1');
+    expect(epic.status).toBe('open');
+    expect(epic.priority).toBe('medium');
+    expect(epic.explanationSource).toBe('user_authored');
+
+    const persisted = await db.workItem.findUnique({ where: { id: epic.id } });
+    expect(persisted).not.toBeNull();
+    expect(persisted?.workspaceId).toBe(fx.workspace.id);
+  });
+
+  it('creates a story under an epic', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'Epic' });
+    const story = await createWorkItem(fx, { kind: 'story', title: 'Story', parentId: epic.id });
+
+    expect(story.parentId).toBe(epic.id);
+    expect(story.kind).toBe('story');
+  });
+});
+
+describe('workItemRepository.create — kind-parent trigger', () => {
+  it('rejects a story parented to a subtask with IllegalParentTypeError', async () => {
+    const fx = await makeFixture();
+    // Shallow, acyclic fixture so neither depth nor cycle trips before kind:
+    // a top-level story with a subtask child (depth 2).
+    const storyTop = await createWorkItem(fx, { kind: 'story', title: 'Top story' });
+    const subtask = await createWorkItem(fx, {
+      kind: 'subtask',
+      title: 'Subtask',
+      parentId: storyTop.id,
+    });
+
+    await expect(
+      createWorkItem(fx, { kind: 'story', title: 'Illegal', parentId: subtask.id }),
+    ).rejects.toBeInstanceOf(IllegalParentTypeError);
+  });
+
+  it('rejects an orphan subtask (parentId = null) with IllegalParentTypeError', async () => {
+    const fx = await makeFixture();
+    await expect(createWorkItem(fx, { kind: 'subtask', title: 'Orphan' })).rejects.toBeInstanceOf(
+      IllegalParentTypeError,
+    );
+  });
+});
+
+describe('workItemRepository.create — depth-limit trigger', () => {
+  it('allows a 4-deep chain and rejects a 5th level with DepthLimitExceededError', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'L1 epic' });
+    const story = await createWorkItem(fx, { kind: 'story', title: 'L2 story', parentId: epic.id });
+    const task = await createWorkItem(fx, { kind: 'task', title: 'L3 task', parentId: story.id });
+    const subtask = await createWorkItem(fx, {
+      kind: 'subtask',
+      title: 'L4 subtask',
+      parentId: task.id,
+    });
+    expect(subtask.parentId).toBe(task.id);
+
+    // A 5th level under the depth-4 subtask. depth fires before kind, so the
+    // depth error surfaces (this case is also kind-illegal).
+    await expect(
+      createWorkItem(fx, { kind: 'subtask', title: 'L5 too deep', parentId: subtask.id }),
+    ).rejects.toBeInstanceOf(DepthLimitExceededError);
+  });
+});
+
+describe('workItemRepository.update — cycle trigger', () => {
+  it('rejects re-parenting an ancestor under its descendant with ParentCycleError', async () => {
+    const fx = await makeFixture();
+    const a = await createWorkItem(fx, { kind: 'epic', title: 'A' });
+    const b = await createWorkItem(fx, { kind: 'story', title: 'B', parentId: a.id });
+    const c = await createWorkItem(fx, { kind: 'task', title: 'C', parentId: b.id });
+
+    // Move A (root) under C (its grandchild) → cycle. The cycle trigger fires
+    // before kind, so we get ParentCycleError (not "epic can't have a parent").
+    await expect(
+      db.$transaction((tx) => workItemRepository.update(a.id, { parentId: c.id }, tx)),
+    ).rejects.toBeInstanceOf(ParentCycleError);
+  });
+});
+
+describe('workItemRepository.findSubtree', () => {
+  it('returns the full 4-deep tree with depth metadata in a single query', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'Root epic' });
+    const story = await createWorkItem(fx, { kind: 'story', title: 'Story', parentId: epic.id });
+    const task = await createWorkItem(fx, { kind: 'task', title: 'Task', parentId: story.id });
+    await createWorkItem(fx, { kind: 'subtask', title: 'Subtask', parentId: task.id });
+
+    // Count DB round-trips with a query-logging client: findSubtree must issue
+    // exactly ONE query (the recursive CTE), not a per-level walk.
+    const loggedDb = new PrismaClient({
+      adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] }),
+      log: [{ emit: 'event', level: 'query' }],
+    });
+    const queries: string[] = [];
+    loggedDb.$on('query', (e) => queries.push(e.query));
+
+    let rows;
+    try {
+      rows = await workItemRepository.findSubtree(
+        epic.id,
+        loggedDb as unknown as Prisma.TransactionClient,
+      );
+    } finally {
+      await loggedDb.$disconnect();
+    }
+
+    expect(rows).toHaveLength(4);
+    expect(rows.map((r) => r.depth)).toEqual([1, 2, 3, 4]);
+    expect(rows.map((r) => r.kind)).toEqual(['epic', 'story', 'task', 'subtask']);
+    expect(rows[0]!.identifier).toBe('PROD-1');
+
+    // Exactly one round-trip, and it is the recursive CTE.
+    expect(queries).toHaveLength(1);
+    expect(queries[0]!.toLowerCase()).toContain('recursive');
+  });
+});
+
+describe('workItemRepository.findByIdentifier', () => {
+  it('finds a work item by its project identifier after create', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'Found me' });
+
+    const found = await workItemRepository.findByIdentifier(fx.project.id, 'PROD-1');
+    expect(found?.id).toBe(epic.id);
+    expect(found?.identifier).toBe('PROD-1');
+
+    const missing = await workItemRepository.findByIdentifier(fx.project.id, 'PROD-999');
+    expect(missing).toBeNull();
+  });
+});
