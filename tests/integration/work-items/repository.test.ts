@@ -222,6 +222,46 @@ describe('workItemRepository.findSubtree', () => {
   });
 });
 
+describe('workItemRepository.lockById', () => {
+  it('returns the id for an existing row and null for a missing one (inside a tx)', async () => {
+    const fx = await makeFixture();
+    const epic = await createWorkItem(fx, { kind: 'epic', title: 'Lockable' });
+
+    const [found, missing] = await db.$transaction(async (tx) => [
+      await workItemRepository.lockById(epic.id, tx),
+      await workItemRepository.lockById('does-not-exist', tx),
+    ]);
+
+    expect(found).toEqual({ id: epic.id });
+    expect(missing).toBeNull();
+  });
+
+  it('serializes concurrent read-modify-write updates (no lost update)', async () => {
+    const fx = await makeFixture();
+    const item = await createWorkItem(fx, { kind: 'epic', title: 'base' });
+
+    // Two concurrent transactions each lock the row, re-read the title, append
+    // 'X', and write. The FOR UPDATE lock serializes them: the second blocks
+    // until the first commits, then re-reads the committed 'baseX' and writes
+    // 'baseXX'. Without the lock both would read 'base' and one write would be
+    // lost (final 'baseX'). The sleep widens the contention window; the
+    // assertion is order-independent — either ordering yields 'baseXX'.
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const bump = (hold: number) =>
+      db.$transaction(async (tx) => {
+        await workItemRepository.lockById(item.id, tx);
+        const current = await workItemRepository.findById(item.id, tx);
+        await sleep(hold);
+        await workItemRepository.update(item.id, { title: `${current!.title}X` }, tx);
+      });
+
+    await Promise.all([bump(150), bump(0)]);
+
+    const final = await workItemRepository.findById(item.id);
+    expect(final?.title).toBe('baseXX');
+  });
+});
+
 describe('workItemRepository.findByIdentifier', () => {
   it('finds a work item by its project identifier after create', async () => {
     const fx = await makeFixture();

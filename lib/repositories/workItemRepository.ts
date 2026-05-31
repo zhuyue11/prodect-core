@@ -47,6 +47,25 @@ export const workItemRepository = {
     return client.workItem.findUnique({ where: { id } });
   },
 
+  /**
+   * Acquire a row-level lock on the work item inside the caller's transaction.
+   * This is the guarding read for the update / move flow (workItemsService,
+   * 1.4.4): lock the row, re-read current state to compute the revision diff +
+   * validate the parent move, then write — all serialized against a concurrent
+   * mutation of the same row. Without the lock, two transactions could each
+   * read the pre-move tree, both pass the cycle/depth trigger on their own
+   * stale snapshot, and together corrupt the tree (or clobber each other's
+   * field writes — a lost update). Returns null when the id doesn't exist.
+   * Read-inside-a-transaction that gates a write → requires `tx` per CLAUDE.md
+   * (mirrors userRepository.lockById).
+   */
+  async lockById(id: string, tx: Prisma.TransactionClient): Promise<{ id: string } | null> {
+    const rows = await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT "id" FROM "work_item" WHERE "id" = ${id} FOR UPDATE
+    `;
+    return rows[0] ?? null;
+  },
+
   async findByIdentifier(
     projectId: string,
     identifier: string,
